@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Widget</class>
- <widget class="QWidget" name="Widget">
+ <class>AntennaRadiationPatternAnalyzer</class>
+ <widget class="QWidget" name="AntennaRadiationPatternAnalyzer">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1067</width>
+    <width>1223</width>
     <height>600</height>
    </rect>
   </property>
@@ -44,7 +44,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="homeDevice">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -53,8 +53,24 @@
      <height>31</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true"> homeDevice = {background-color: Black; color: white }</string>
+   </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>Home Device</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="uploadData">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>510</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Upload File Data</string>
    </property>
   </widget>
  </widget>
