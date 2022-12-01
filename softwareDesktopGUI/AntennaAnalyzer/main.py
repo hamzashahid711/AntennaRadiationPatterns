@@ -1,10 +1,10 @@
 #This file is for saving previous ui designs
 #pyQt updates the antenna.py file with its own python code and deletes anything altered about it after running the command-
 #pyuic6 -x AntennaAnalyze.ui -o antenna.py
-
-
+import numpy as np
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMessageBox, QFileDialog
+from matplotlib import pyplot as plt
 
 
 class Ui_AntennaRadiationPatternAnalyzer(object):
@@ -212,6 +212,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.intensity.setObjectName("intensity")
 
         # function calls
+        self.plot()
         self.spinBox.setRange(0, 90)
         self.spinBox_2.setRange(-90, 90)
         self.spinBox_3.setRange(0, 90)
@@ -225,7 +226,24 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.retranslateUi(AntennaRadiationPatternAnalyzer)
         QtCore.QMetaObject.connectSlotsByName(AntennaRadiationPatternAnalyzer)
 
+    def plot(self):
+        r = np.arange(0, 2, 0.01)
+        theta = 2 * np.pi * r
 
+        fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+        ax.plot(theta, r)
+        ax.set_rmax(2)
+        ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
+        ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
+        ax.grid(True)
+
+        ax.set_title("A line plot on a polar axis", va='bottom')
+
+        fig1 = plt.gcf()
+        plt.show()
+        plt.draw()
+
+        fig1.savefig('test.png', dpi=100)
     def checkManualRadioButton(self, b):
         if (b.isChecked()):
             print("here")
