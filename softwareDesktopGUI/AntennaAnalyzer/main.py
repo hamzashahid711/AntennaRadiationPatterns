@@ -3,9 +3,13 @@
 #pyuic6 -x AntennaAnalyze.ui -o antenna.py
 import numpy as np
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QMessageBox, QFileDialog
 from matplotlib import pyplot as plt
-
+import random
+import os
+from PIL import Image
+from tempfile import NamedTemporaryFile
 
 class Ui_AntennaRadiationPatternAnalyzer(object):
     def setupUi(self, AntennaRadiationPatternAnalyzer):
@@ -87,7 +91,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.run_script.setStyleSheet("background-color:rgb(255,255,255)")
         self.run_script.setObjectName("run_script")
         self.buttonContainer = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.buttonContainer.setGeometry(QtCore.QRect(270, 510, 691, 61))
+        self.buttonContainer.setGeometry(QtCore.QRect(270, 530, 691, 61))
         self.buttonContainer.setStyleSheet("background-color:rgb(211,211,211)")
         self.buttonContainer.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.buttonContainer.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
@@ -107,7 +111,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                                       "")
         self.changeView.setObjectName("changeView")
         self.fruqencyMapContainer = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.fruqencyMapContainer.setGeometry(QtCore.QRect(260, 10, 701, 61))
+        self.fruqencyMapContainer.setGeometry(QtCore.QRect(260, 0, 701, 61))
         self.fruqencyMapContainer.setStyleSheet("background-color:rgb(211,211,211)")
         self.fruqencyMapContainer.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.fruqencyMapContainer.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
@@ -206,13 +210,13 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.energyLevel9 = QtWidgets.QLabel(AntennaRadiationPatternAnalyzer)
         self.energyLevel9.setGeometry(QtCore.QRect(280, 130, 81, 16))
         self.energyLevel9.setObjectName("energyLevel9")
-        self.intensity = QtWidgets.QLabel(AntennaRadiationPatternAnalyzer)
-        self.intensity.setGeometry(QtCore.QRect(240, 460, 191, 16))
-        self.intensity.setMouseTracking(False)
-        self.intensity.setObjectName("intensity")
+        self.imagePlot = QtWidgets.QLabel(AntennaRadiationPatternAnalyzer)
+        self.imagePlot.setGeometry(QtCore.QRect(300, 70, 681, 441))
+        self.imagePlot.setText("")
+        self.imagePlot.setObjectName("imagePlot")
 
         # function calls
-        self.plot()
+        self.mapFrequency.clicked.connect(self.plot)
         self.spinBox.setRange(0, 90)
         self.spinBox_2.setRange(-90, 90)
         self.spinBox_3.setRange(0, 90)
@@ -239,11 +243,26 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         ax.set_title("A line plot on a polar axis", va='bottom')
 
-        fig1 = plt.gcf()
-        plt.show()
-        plt.draw()
-
-        fig1.savefig('test.png', dpi=100)
+        with NamedTemporaryFile("r+b", delete=True) as plot:
+            fig1 = plt.gcf()
+            plt.show()
+            plt.draw()
+            # delete is by default True
+            # the if you don't set it, it will delete the file
+            # after leaving the with block
+            fig1.savefig(plot)
+            # seeking back to position 0
+            # allowed by r+
+            plot.seek(0)
+            # show the image from temporary file with PILLOW
+            qpix = QPixmap(plot.name)
+            self.imagePlot.setPixmap(qpix)
+            # Image is shown (window opens)
+            # but then directly the block is left and the NamedTemporaryFile is deleted
+        if os.path.exists(plot.name):
+            print("still exists.")
+        else:
+            print("was deleted.")
     def checkManualRadioButton(self, b):
         if (b.isChecked()):
             print("here")
@@ -275,7 +294,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
     def retranslateUi(self, AntennaRadiationPatternAnalyzer):
         _translate = QtCore.QCoreApplication.translate
-        AntennaRadiationPatternAnalyzer.setWindowTitle(_translate("AntennaRadiationPatternAnalyzer", "AntennaRadiationPatternAnalyzer"))
+        AntennaRadiationPatternAnalyzer.setWindowTitle(_translate("AntennaRadiationPatternAnalyzer", "Widget"))
         self.headAngleMan.setText(_translate("AntennaRadiationPatternAnalyzer", "Angle of Antenna Head?"))
         self.manualRunner.setText(_translate("AntennaRadiationPatternAnalyzer", "Manual Script Runner"))
         self.headAngleMan_2.setText(_translate("AntennaRadiationPatternAnalyzer", "Angle of Arc Increment?"))
@@ -301,7 +320,6 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.energyLevel7.setText(_translate("AntennaRadiationPatternAnalyzer", "10"))
         self.energyLevel8.setText(_translate("AntennaRadiationPatternAnalyzer", "15"))
         self.energyLevel9.setText(_translate("AntennaRadiationPatternAnalyzer", "20"))
-        self.intensity.setText(_translate("AntennaRadiationPatternAnalyzer", "Intesity of Color = Energy Level "))
 
 
 if __name__ == "__main__":
