@@ -262,10 +262,10 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         if os.path.exists(plot.name):
             print("still exists.")
         else:
-            print("was deleted.")
+            print(plot.name + "was deleted.")
     def checkManualRadioButton(self, b):
         if (b.isChecked()):
-            print("here")
+            print("manual runner mode initiated")
         else:
             print("h")
 
