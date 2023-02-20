@@ -135,13 +135,20 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.imagePlot.setText("")
         self.imagePlot.setObjectName("imagePlot")
 
+        #initial state
+        self.manualRunner.setChecked(True)
+        self.disableScript(self.manualRunner, self.script_Runner,self.spinBox, self.spinBox_2, self.spinBox_3,self.spinBox_4,self.homeDevice, self.homeDevice_2)
         # function calls
         self.mapFrequency.clicked.connect(self.plot)
+        self.homeDevice.clicked.connect(self.homedevice)
+        self.homeDevice_2.clicked.connect(self.homedevice)
         self.spinBox.setRange(0, 90)
         self.spinBox_2.setRange(-90, 90)
         self.spinBox_3.setRange(0, 90)
         self.spinBox_4.setRange(-90, 90)
-        self.manualRunner.toggled.connect(lambda: self.checkManualRadioButton(self.manualRunner))
+        self.manualRunner.toggled.connect(lambda: self.disableManual(self.manualRunner,self.script_Runner,self.spinBox,self.spinBox_2,self.spinBox_3,self.spinBox_4,self.homeDevice,self.homeDevice_2))
+        self.script_Runner.toggled.connect(lambda: self.disableScript(self.manualRunner,self.script_Runner,self.spinBox,self.spinBox_2,self.spinBox_3,self.spinBox_4,self.homeDevice,self.homeDevice_2))
+
         self.uploadData.clicked.connect(self.uploadFiles)
         self.spinBox.valueChanged.connect(lambda: self.getSpinValueManual(self.spinBox, 1))
         self.spinBox_2.valueChanged.connect(lambda: self.getSpinValueManual(self.spinBox_2, 2))
@@ -149,6 +156,13 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         self.retranslateUi(AntennaRadiationPatternAnalyzer)
         QtCore.QMetaObject.connectSlotsByName(AntennaRadiationPatternAnalyzer)
+
+    def homedevice(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Pop Up")
+        msg.setText("homing device")
+
+        x = msg.exec()
 
     def plot(self):
         r = np.arange(0, 2, 0.01)
@@ -183,11 +197,30 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             print("still exists.")
         else:
             print(plot.name + "was deleted.")
-    def checkManualRadioButton(self, b):
-        if (b.isChecked()):
-            print("manual runner mode initiated")
-        else:
-            print("h")
+
+
+    def disableManual(self, radioButton1, radioButton2, spinbox1, spinbox2, spinbox3, spinbox4, homeDeviceButton, homeDeviceButton2):
+        print("script runner mode initiated")
+        radioButton1.setEnabled(False)
+        spinbox1.setEnabled(False)
+        spinbox2.setEnabled(False)
+        radioButton2.setEnabled(True)
+        homeDeviceButton.setEnabled(False)
+        spinbox3.setEnabled(True)
+        spinbox4.setEnabled(True)
+        homeDeviceButton2.setEnabled(True)
+
+    def disableScript(self, radioButton1, radioButton2, spinbox1, spinbox2, spinbox3 , spinbox4,homeDeviceButton, homeDeviceButton2):
+        print("manual runner mode initiated")
+        radioButton2.setEnabled(False)
+        spinbox3.setEnabled(False)
+        spinbox4.setEnabled(False)
+        radioButton1.setEnabled(True)
+        homeDeviceButton2.setEnabled(False)
+        spinbox1.setEnabled(True)
+        spinbox2.setEnabled(True)
+        homeDeviceButton.setEnabled(True)
+
 
     def uploadFiles(self):
         fileName = QFileDialog.getOpenFileName(None, 'Open File', "", "Image Files (*.png)")
