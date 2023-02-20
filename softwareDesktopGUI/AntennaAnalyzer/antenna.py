@@ -97,10 +97,10 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.uploadData.setStyleSheet("background-color:rgb(255,255,255)\n"
 "")
         self.uploadData.setObjectName("uploadData")
-        self.importData = QtWidgets.QPushButton(self.buttonContainer)
-        self.importData.setGeometry(QtCore.QRect(280, 10, 121, 41))
-        self.importData.setStyleSheet("background-color:rgb(255,255,255)")
-        self.importData.setObjectName("importData")
+        self.exportData = QtWidgets.QPushButton(self.buttonContainer)
+        self.exportData.setGeometry(QtCore.QRect(280, 10, 121, 41))
+        self.exportData.setStyleSheet("background-color:rgb(255,255,255)")
+        self.exportData.setObjectName("exportData")
         self.changeView = QtWidgets.QPushButton(self.buttonContainer)
         self.changeView.setGeometry(QtCore.QRect(530, 10, 121, 41))
         self.changeView.setStyleSheet("background-color:rgb(255,255,255)\n"
@@ -147,7 +147,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.homeDevice_2.setText(_translate("AntennaRadiationPatternAnalyzer", "Home Device"))
         self.run_script.setText(_translate("AntennaRadiationPatternAnalyzer", "Run Script"))
         self.uploadData.setText(_translate("AntennaRadiationPatternAnalyzer", "Upload File Data"))
-        self.importData.setText(_translate("AntennaRadiationPatternAnalyzer", "Import Data"))
+        self.exportData.setText(_translate("AntennaRadiationPatternAnalyzer", "Export Data"))
         self.changeView.setText(_translate("AntennaRadiationPatternAnalyzer", "Change View"))
         self.mapFrequency.setText(_translate("AntennaRadiationPatternAnalyzer", "Map Frequency"))
         self.frequencyInputLabel.setText(_translate("AntennaRadiationPatternAnalyzer", "Frequency Input:"))

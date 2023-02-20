@@ -297,7 +297,7 @@
      <string>Upload File Data</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="importData">
+   <widget class="QPushButton" name="exportData">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -310,7 +310,7 @@
      <string notr="true">background-color:rgb(255,255,255)</string>
     </property>
     <property name="text">
-     <string>Import Data</string>
+     <string>Export Data</string>
     </property>
    </widget>
    <widget class="QPushButton" name="changeView">
