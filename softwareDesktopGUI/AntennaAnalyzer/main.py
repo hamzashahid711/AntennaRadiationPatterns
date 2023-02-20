@@ -209,6 +209,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         spinbox3.setEnabled(True)
         spinbox4.setEnabled(True)
         homeDeviceButton2.setEnabled(True)
+        radioButton2.setChecked(True)
 
     def disableScript(self, radioButton1, radioButton2, spinbox1, spinbox2, spinbox3 , spinbox4,homeDeviceButton, homeDeviceButton2):
         print("manual runner mode initiated")
@@ -220,6 +221,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         spinbox1.setEnabled(True)
         spinbox2.setEnabled(True)
         homeDeviceButton.setEnabled(True)
+        radioButton1.setChecked(True)
 
 
     def uploadFiles(self):
