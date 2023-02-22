@@ -193,6 +193,10 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                            self.homeDevice1,self.scriptStartSpinBox1, self.scriptStopSpinBox1,
                            self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1, self.scriptStepSize2,
                            self.homeDevice2, self.run_script )
+        self.scriptStartSpinBox1.setRange(-90,90)
+        self.scriptStartSpinBox2.setRange(-90, 90)
+        self.scriptStopSpinBox2.setRange(-90, 90)
+        self.scriptStopSpinBox1.setRange(-90, 90)
 
         #function calls
         self.mapFrequency.clicked.connect(self.plot)
@@ -241,6 +245,8 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.exec()
+            return False
+        return True
 
     def checkstepSizeAzmuth(self, Startvalue2, Stopvalue2, Stepvalue2):
         if((abs(Stopvalue2-Startvalue2) % Stepvalue2) != 0):
@@ -251,6 +257,8 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.exec()
+            return False
+        return True
 
     def checkForZero(self, stepValue):
         if(stepValue == 0):
@@ -258,6 +266,8 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         return True
 
     def runScript(self):
+        spinsA = []
+        spinsE = []
         if(self.scriptStepSize1.value() == 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0 and self.scriptStepSize2.value() == 0 and self.scriptStartSpinBox2.value() == 0 and self.scriptStopSpinBox2.value() == 0):
             msg = QMessageBox()
 
@@ -266,6 +276,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.exec()
+            return
         if self.scriptStepSize1.value() > 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0:
             msg = QMessageBox()
 
@@ -274,6 +285,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.exec()
+            return
         if self.scriptStepSize2.value() > 0 and self.scriptStartSpinBox2.value() == 0 and self.scriptStopSpinBox2.value() == 0:
             msg = QMessageBox()
 
@@ -282,9 +294,17 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.exec()
+            return
         if(self.scriptStartSpinBox1.value() > 0 or self.scriptStartSpinBox1.value() < 0 or self.scriptStopSpinBox1.value() > 0 or self.scriptStopSpinBox1.value() < 0):
             if(self.checkForZero(self.scriptStepSize1.value())):
-                self.checkstepSizeElevation(self.scriptStartSpinBox1.value(), self.scriptStopSpinBox1.value(),self.scriptStepSize1.value())
+                if(self.checkstepSizeElevation(self.scriptStartSpinBox1.value(), self.scriptStopSpinBox1.value(),self.scriptStepSize1.value())):
+                    print("made")
+                    spinsE.append(self.scriptStartSpinBox1.value())
+                    spinsE.append(self.scriptStopSpinBox1.value())
+                    spinsE.append(self.scriptStepSize1.value())
+                else:
+                    return
+
             else:
                 msg = QMessageBox()
 
@@ -293,9 +313,16 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
                 msg.setIcon(QMessageBox.Icon.Critical)
                 msg.exec()
+                return
         if (self.scriptStartSpinBox2.value() > 0 or self.scriptStartSpinBox2.value() < 0 or self.scriptStopSpinBox2.value() > 0 or self.scriptStopSpinBox2.value() < 0):
             if (self.checkForZero(self.scriptStepSize2.value())):
-                self.checkstepSizeAzmuth(self.scriptStartSpinBox2.value(), self.scriptStopSpinBox2.value(),self.scriptStepSize2.value())
+                if(self.checkstepSizeAzmuth(self.scriptStartSpinBox2.value(), self.scriptStopSpinBox2.value(),self.scriptStepSize2.value())):
+                    spinsA.append(self.scriptStartSpinBox2.value())
+                    spinsA.append(self.scriptStopSpinBox2.value())
+                    spinsA.append(self.scriptStepSize2.value())
+                else:
+                    return
+
             else:
                 msg = QMessageBox()
 
@@ -304,7 +331,19 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
                 msg.setIcon(QMessageBox.Icon.Critical)
                 msg.exec()
-        return
+                return
+        if(len(spinsA) == 0):
+            spinsA.append(0)
+            spinsA.append(0)
+            spinsA.append(0)
+        if(len(spinsE ) == 0):
+            spinsE.append(0)
+            spinsE.append(0)
+            spinsE.append(0)
+        print(spinsA)
+        print("\n")
+        print(spinsE)
+
     def plot(self):
         r = np.arange(0, 2, 0.01)
         theta = 2 * np.pi * r
