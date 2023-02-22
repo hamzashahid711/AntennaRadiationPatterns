@@ -258,19 +258,44 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         return True
 
     def runScript(self):
-        if(self.checkForZero(self.scriptStepSize1.value()) and self.checkForZero(self.scriptStepSize2.value()) ):
-
-
-            self.checkstepSizeElevation(self.scriptStartSpinBox1.value(), self.scriptStopSpinBox1.value(), self.scriptStepSize1.value())
-            self.checkstepSizeAzmuth(self.scriptStartSpinBox2.value(), self.scriptStopSpinBox2.value(), self.scriptStepSize2.value())
-        else:
+        if self.scriptStepSize1.value() > 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0:
             msg = QMessageBox()
 
             msg.setWindowTitle("Error")
-            msg.setText("Cannot have 0 step size in any plane")
+            msg.setText("Cannot have more than 1 step size while not having start or stop in elevation plane")
 
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.exec()
+        if self.scriptStepSize2.value() > 0 and self.scriptStartSpinBox2.value() == 0 and self.scriptStopSpinBox2.value() == 0:
+            msg = QMessageBox()
+
+            msg.setWindowTitle("Error")
+            msg.setText("Cannot have more than 1 step size while not having start or stop in azmuth plane")
+
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.exec()
+        if(self.scriptStartSpinBox1.value() > 0 or self.scriptStartSpinBox1.value() < 0 or self.scriptStopSpinBox1.value() > 0 or self.scriptStopSpinBox1.value() < 0):
+            if(self.checkForZero(self.scriptStepSize1.value())):
+                self.checkstepSizeElevation(self.scriptStartSpinBox1.value(), self.scriptStopSpinBox1.value(),self.scriptStepSize1.value())
+            else:
+                msg = QMessageBox()
+
+                msg.setWindowTitle("Error")
+                msg.setText("Cannot have 0 step size in elevation plane")
+
+                msg.setIcon(QMessageBox.Icon.Critical)
+                msg.exec()
+        if (self.scriptStartSpinBox2.value() > 0 or self.scriptStartSpinBox2.value() < 0 or self.scriptStopSpinBox2.value() > 0 or self.scriptStopSpinBox2.value() < 0):
+            if (self.checkForZero(self.scriptStepSize2.value())):
+                self.checkstepSizeAzmuth(self.scriptStartSpinBox2.value(), self.scriptStopSpinBox2.value(),self.scriptStepSize2.value())
+            else:
+                msg = QMessageBox()
+
+                msg.setWindowTitle("Error")
+                msg.setText("Cannot have 0 step size in azmuth plane")
+
+                msg.setIcon(QMessageBox.Icon.Critical)
+                msg.exec()
         return
     def plot(self):
         r = np.arange(0, 2, 0.01)
