@@ -258,6 +258,14 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         return True
 
     def runScript(self):
+        if(self.scriptStepSize1.value() == 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0 and self.scriptStepSize2.value() == 0 and self.scriptStartSpinBox2.value() == 0 and self.scriptStopSpinBox2.value() == 0):
+            msg = QMessageBox()
+
+            msg.setWindowTitle("Error")
+            msg.setText("put in some value")
+
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.exec()
         if self.scriptStepSize1.value() > 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0:
             msg = QMessageBox()
 
