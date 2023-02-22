@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 import random
 import os
 from PIL import Image
+import math
 from tempfile import NamedTemporaryFile
 
 class Ui_AntennaRadiationPatternAnalyzer(object):
@@ -18,52 +19,18 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         AntennaRadiationPatternAnalyzer.setObjectName("AntennaRadiationPatternAnalyzer")
         AntennaRadiationPatternAnalyzer.resize(1235, 600)
         AntennaRadiationPatternAnalyzer.setStyleSheet("")
-        self.manualRunnerContainer = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.manualRunnerContainer.setGeometry(QtCore.QRect(30, 50, 201, 431))
-        self.manualRunnerContainer.setStyleSheet("background-color:rgb(211,211,211)")
-        self.manualRunnerContainer.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.manualRunnerContainer.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.manualRunnerContainer.setObjectName("manualRunnerContainer")
-        self.headAngleMan = QtWidgets.QLabel(self.manualRunnerContainer)
-        self.headAngleMan.setGeometry(QtCore.QRect(30, 60, 151, 20))
-        self.headAngleMan.setObjectName("headAngleMan")
-        self.manualRunner = QtWidgets.QRadioButton(self.manualRunnerContainer)
-        self.manualRunner.setEnabled(True)
-        self.manualRunner.setGeometry(QtCore.QRect(20, 10, 161, 31))
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setItalic(False)
-        self.manualRunner.setFont(font)
-        self.manualRunner.setChecked(False)
-        self.manualRunner.setAutoExclusive(True)
-        self.manualRunner.setObjectName("manualRunner")
-        self.headAngleMan_2 = QtWidgets.QLabel(self.manualRunnerContainer)
-        self.headAngleMan_2.setGeometry(QtCore.QRect(30, 210, 151, 20))
-        self.headAngleMan_2.setObjectName("headAngleMan_2")
-        self.spinBox = QtWidgets.QSpinBox(self.manualRunnerContainer)
-        self.spinBox.setGeometry(QtCore.QRect(30, 250, 141, 22))
-        self.spinBox.setStyleSheet("background-color:rgb(255,255,255)")
-        self.spinBox.setObjectName("spinBox")
-        self.spinBox_2 = QtWidgets.QSpinBox(self.manualRunnerContainer)
-        self.spinBox_2.setGeometry(QtCore.QRect(30, 100, 141, 22))
-        self.spinBox_2.setStyleSheet("background-color:rgb(255,255,255)")
-        self.spinBox_2.setObjectName("spinBox_2")
-        self.homeDevice = QtWidgets.QPushButton(self.manualRunnerContainer)
-        self.homeDevice.setGeometry(QtCore.QRect(30, 350, 141, 41))
-        self.homeDevice.setStyleSheet("QPushButton {background-color: black; color: white;}")
-        self.homeDevice.setObjectName("homeDevice")
         self.manualRunnerContainer_2 = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.manualRunnerContainer_2.setGeometry(QtCore.QRect(990, 50, 221, 431))
+        self.manualRunnerContainer_2.setGeometry(QtCore.QRect(930, 70, 301, 461))
         self.manualRunnerContainer_2.setStyleSheet("background-color:rgb(211,211,211)")
         self.manualRunnerContainer_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.manualRunnerContainer_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.manualRunnerContainer_2.setObjectName("manualRunnerContainer_2")
-        self.headAngleMan_3 = QtWidgets.QLabel(self.manualRunnerContainer_2)
-        self.headAngleMan_3.setGeometry(QtCore.QRect(30, 60, 151, 20))
-        self.headAngleMan_3.setObjectName("headAngleMan_3")
+        self.scriptElevation = QtWidgets.QLabel(self.manualRunnerContainer_2)
+        self.scriptElevation.setGeometry(QtCore.QRect(70, 60, 151, 20))
+        self.scriptElevation.setObjectName("scriptElevation")
         self.script_Runner = QtWidgets.QRadioButton(self.manualRunnerContainer_2)
         self.script_Runner.setEnabled(True)
-        self.script_Runner.setGeometry(QtCore.QRect(20, 10, 161, 31))
+        self.script_Runner.setGeometry(QtCore.QRect(80, 20, 161, 31))
         font = QtGui.QFont()
         font.setBold(True)
         font.setItalic(False)
@@ -71,27 +38,52 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.script_Runner.setChecked(False)
         self.script_Runner.setAutoExclusive(True)
         self.script_Runner.setObjectName("script_Runner")
-        self.angleofarc_4 = QtWidgets.QLabel(self.manualRunnerContainer_2)
-        self.angleofarc_4.setGeometry(QtCore.QRect(30, 210, 151, 20))
-        self.angleofarc_4.setObjectName("angleofarc_4")
-        self.spinBox_3 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
-        self.spinBox_3.setGeometry(QtCore.QRect(30, 250, 141, 22))
-        self.spinBox_3.setStyleSheet("background-color:rgb(255,255,255)")
-        self.spinBox_3.setObjectName("spinBox_3")
-        self.spinBox_4 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
-        self.spinBox_4.setGeometry(QtCore.QRect(30, 100, 141, 22))
-        self.spinBox_4.setStyleSheet("background-color:rgb(255,255,255)")
-        self.spinBox_4.setObjectName("spinBox_4")
-        self.homeDevice_2 = QtWidgets.QPushButton(self.manualRunnerContainer_2)
-        self.homeDevice_2.setGeometry(QtCore.QRect(30, 380, 141, 41))
-        self.homeDevice_2.setStyleSheet("QPushButton {background-color: black; color: white;}")
-        self.homeDevice_2.setObjectName("homeDevice_2")
+        self.scriptAzmuth = QtWidgets.QLabel(self.manualRunnerContainer_2)
+        self.scriptAzmuth.setGeometry(QtCore.QRect(70, 200, 151, 20))
+        self.scriptAzmuth.setObjectName("scriptAzmuth")
+        self.scriptStartSpinBox1 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
+        self.scriptStartSpinBox1.setGeometry(QtCore.QRect(10, 120, 71, 22))
+        self.scriptStartSpinBox1.setStyleSheet("background-color:rgb(255,255,255)")
+        self.scriptStartSpinBox1.setObjectName("scriptStartSpinBox1")
+        self.homeDevice2 = QtWidgets.QPushButton(self.manualRunnerContainer_2)
+        self.homeDevice2.setGeometry(QtCore.QRect(70, 390, 141, 41))
+        self.homeDevice2.setStyleSheet("QPushButton {background-color: black; color: white;}")
+        self.homeDevice2.setObjectName("homeDevice2")
         self.run_script = QtWidgets.QPushButton(self.manualRunnerContainer_2)
-        self.run_script.setGeometry(QtCore.QRect(40, 320, 121, 41))
+        self.run_script.setGeometry(QtCore.QRect(80, 330, 121, 41))
         self.run_script.setStyleSheet("background-color:rgb(255,255,255)")
         self.run_script.setObjectName("run_script")
+        self.scriptStopSpinBox1 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
+        self.scriptStopSpinBox1.setGeometry(QtCore.QRect(110, 120, 71, 22))
+        self.scriptStopSpinBox1.setStyleSheet("background-color:rgb(255,255,255)")
+        self.scriptStopSpinBox1.setObjectName("scriptStopSpinBox1")
+        self.scriptStartSpinBox2 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
+        self.scriptStartSpinBox2.setGeometry(QtCore.QRect(10, 250, 71, 22))
+        self.scriptStartSpinBox2.setStyleSheet("background-color:rgb(255,255,255)")
+        self.scriptStartSpinBox2.setObjectName("scriptStartSpinBox2")
+        self.scriptStopSpinBox2 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
+        self.scriptStopSpinBox2.setGeometry(QtCore.QRect(110, 250, 71, 22))
+        self.scriptStopSpinBox2.setStyleSheet("background-color:rgb(255,255,255)")
+        self.scriptStopSpinBox2.setObjectName("scriptStopSpinBox2")
+        self.scriptStepSize1 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
+        self.scriptStepSize1.setGeometry(QtCore.QRect(210, 120, 71, 22))
+        self.scriptStepSize1.setStyleSheet("background-color:rgb(255,255,255)")
+        self.scriptStepSize1.setObjectName("scriptStepSize1")
+        self.scriptStepSize2 = QtWidgets.QSpinBox(self.manualRunnerContainer_2)
+        self.scriptStepSize2.setGeometry(QtCore.QRect(210, 250, 71, 22))
+        self.scriptStepSize2.setStyleSheet("background-color:rgb(255,255,255)")
+        self.scriptStepSize2.setObjectName("scriptStepSize2")
+        self.scriptStart = QtWidgets.QLabel(self.manualRunnerContainer_2)
+        self.scriptStart.setGeometry(QtCore.QRect(20, 90, 31, 20))
+        self.scriptStart.setObjectName("scriptStart")
+        self.scriptStop = QtWidgets.QLabel(self.manualRunnerContainer_2)
+        self.scriptStop.setGeometry(QtCore.QRect(120, 90, 31, 20))
+        self.scriptStop.setObjectName("scriptStop")
+        self.scriptStepSize = QtWidgets.QLabel(self.manualRunnerContainer_2)
+        self.scriptStepSize.setGeometry(QtCore.QRect(210, 90, 61, 20))
+        self.scriptStepSize.setObjectName("scriptStepSize")
         self.buttonContainer = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.buttonContainer.setGeometry(QtCore.QRect(270, 530, 691, 61))
+        self.buttonContainer.setGeometry(QtCore.QRect(270, 540, 691, 61))
         self.buttonContainer.setStyleSheet("background-color:rgb(211,211,211)")
         self.buttonContainer.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.buttonContainer.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
@@ -104,20 +96,20 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.exportData = QtWidgets.QPushButton(self.buttonContainer)
         self.exportData.setGeometry(QtCore.QRect(280, 10, 121, 41))
         self.exportData.setStyleSheet("background-color:rgb(255,255,255)")
-        self.exportData.setObjectName("Export Data")
+        self.exportData.setObjectName("exportData")
         self.changeView = QtWidgets.QPushButton(self.buttonContainer)
         self.changeView.setGeometry(QtCore.QRect(530, 10, 121, 41))
         self.changeView.setStyleSheet("background-color:rgb(255,255,255)\n"
                                       "")
         self.changeView.setObjectName("changeView")
         self.fruqencyMapContainer = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.fruqencyMapContainer.setGeometry(QtCore.QRect(260, 0, 701, 61))
+        self.fruqencyMapContainer.setGeometry(QtCore.QRect(300, 0, 651, 61))
         self.fruqencyMapContainer.setStyleSheet("background-color:rgb(211,211,211)")
         self.fruqencyMapContainer.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.fruqencyMapContainer.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.fruqencyMapContainer.setObjectName("fruqencyMapContainer")
         self.mapFrequency = QtWidgets.QPushButton(self.fruqencyMapContainer)
-        self.mapFrequency.setGeometry(QtCore.QRect(530, 10, 121, 41))
+        self.mapFrequency.setGeometry(QtCore.QRect(520, 10, 121, 41))
         self.mapFrequency.setStyleSheet("background-color:rgb(255,255,255)")
         self.mapFrequency.setObjectName("mapFrequency")
         self.frequencyInputLabel = QtWidgets.QLabel(self.fruqencyMapContainer)
@@ -131,27 +123,104 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.spinBox_5.setStyleSheet("background-color:rgb(255,255,255)")
         self.spinBox_5.setObjectName("spinBox_5")
         self.imagePlot = QtWidgets.QLabel(AntennaRadiationPatternAnalyzer)
-        self.imagePlot.setGeometry(QtCore.QRect(300, 70, 681, 441))
+        self.imagePlot.setGeometry(QtCore.QRect(330, 80, 571, 451))
         self.imagePlot.setText("")
         self.imagePlot.setObjectName("imagePlot")
+        self.manualRunnerContainer_3 = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
+        self.manualRunnerContainer_3.setGeometry(QtCore.QRect(10, 70, 291, 461))
+        self.manualRunnerContainer_3.setStyleSheet("background-color:rgb(211,211,211)")
+        self.manualRunnerContainer_3.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.manualRunnerContainer_3.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.manualRunnerContainer_3.setObjectName("manualRunnerContainer_3")
+        self.manualElevation = QtWidgets.QLabel(self.manualRunnerContainer_3)
+        self.manualElevation.setGeometry(QtCore.QRect(70, 60, 151, 20))
+        self.manualElevation.setObjectName("manualElevation")
+        self.ManualRunner = QtWidgets.QRadioButton(self.manualRunnerContainer_3)
+        self.ManualRunner.setEnabled(True)
+        self.ManualRunner.setGeometry(QtCore.QRect(80, 20, 161, 31))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setItalic(False)
+        self.ManualRunner.setFont(font)
+        self.ManualRunner.setChecked(False)
+        self.ManualRunner.setAutoExclusive(True)
+        self.ManualRunner.setObjectName("ManualRunner")
+        self.manualAzmuth = QtWidgets.QLabel(self.manualRunnerContainer_3)
+        self.manualAzmuth.setGeometry(QtCore.QRect(70, 200, 151, 20))
+        self.manualAzmuth.setObjectName("manualAzmuth")
+        self.ManualStartSpinBox1 = QtWidgets.QSpinBox(self.manualRunnerContainer_3)
+        self.ManualStartSpinBox1.setGeometry(QtCore.QRect(10, 120, 71, 22))
+        self.ManualStartSpinBox1.setStyleSheet("background-color:rgb(255,255,255)")
+        self.ManualStartSpinBox1.setObjectName("ManualStartSpinBox1")
+        self.homeDevice1 = QtWidgets.QPushButton(self.manualRunnerContainer_3)
+        self.homeDevice1.setGeometry(QtCore.QRect(70, 390, 141, 41))
+        self.homeDevice1.setStyleSheet("QPushButton {background-color: black; color: white;}")
+        self.homeDevice1.setObjectName("homeDevice1")
+        self.manualStopSpinBox1 = QtWidgets.QSpinBox(self.manualRunnerContainer_3)
+        self.manualStopSpinBox1.setGeometry(QtCore.QRect(110, 120, 71, 22))
+        self.manualStopSpinBox1.setStyleSheet("background-color:rgb(255,255,255)")
+        self.manualStopSpinBox1.setObjectName("manualStopSpinBox1")
+        self.manualStartSpinBox2 = QtWidgets.QSpinBox(self.manualRunnerContainer_3)
+        self.manualStartSpinBox2.setGeometry(QtCore.QRect(10, 250, 71, 22))
+        self.manualStartSpinBox2.setStyleSheet("background-color:rgb(255,255,255)")
+        self.manualStartSpinBox2.setObjectName("manualStartSpinBox2")
+        self.manualStopSpinBox2 = QtWidgets.QSpinBox(self.manualRunnerContainer_3)
+        self.manualStopSpinBox2.setGeometry(QtCore.QRect(110, 250, 71, 22))
+        self.manualStopSpinBox2.setStyleSheet("background-color:rgb(255,255,255)")
+        self.manualStopSpinBox2.setObjectName("manualStopSpinBox2")
+        self.manualStepSize1 = QtWidgets.QSpinBox(self.manualRunnerContainer_3)
+        self.manualStepSize1.setGeometry(QtCore.QRect(210, 120, 71, 22))
+        self.manualStepSize1.setStyleSheet("background-color:rgb(255,255,255)")
+        self.manualStepSize1.setObjectName("manualStepSize1")
+        self.manualStepSize2 = QtWidgets.QSpinBox(self.manualRunnerContainer_3)
+        self.manualStepSize2.setGeometry(QtCore.QRect(210, 250, 71, 22))
+        self.manualStepSize2.setStyleSheet("background-color:rgb(255,255,255)")
+        self.manualStepSize2.setObjectName("manualStepSize2")
+        self.manualStart = QtWidgets.QLabel(self.manualRunnerContainer_3)
+        self.manualStart.setGeometry(QtCore.QRect(20, 90, 41, 20))
+        self.manualStart.setObjectName("manualStart")
+        self.manualStop = QtWidgets.QLabel(self.manualRunnerContainer_3)
+        self.manualStop.setGeometry(QtCore.QRect(120, 90, 51, 20))
+        self.manualStop.setObjectName("manualStop")
+        self.manualStepSize = QtWidgets.QLabel(self.manualRunnerContainer_3)
+        self.manualStepSize.setGeometry(QtCore.QRect(220, 90, 61, 20))
+        self.manualStepSize.setObjectName("manualStepSize")
 
         #initial state
-        self.manualRunner.setChecked(True)
-        self.disableScript(self.manualRunner, self.script_Runner,self.spinBox, self.spinBox_2, self.spinBox_3,self.spinBox_4,self.homeDevice, self.homeDevice_2)
-        # function calls
+        self.script_Runner.setChecked(True)
+        self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1, self.manualStopSpinBox1,
+                           self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1, self.manualStepSize2,
+                           self.homeDevice1,self.scriptStartSpinBox1, self.scriptStopSpinBox1,
+                           self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1, self.scriptStepSize2,
+                           self.homeDevice2, self.run_script )
+
+        #function calls
         self.mapFrequency.clicked.connect(self.plot)
-        self.homeDevice.clicked.connect(self.homedevice)
-        self.homeDevice_2.clicked.connect(self.homedevice)
-        self.spinBox.setRange(0, 90)
-        self.spinBox_2.setRange(-90, 90)
-        self.spinBox_3.setRange(0, 90)
-        self.spinBox_4.setRange(-90, 90)
-        self.manualRunner.toggled.connect(lambda: self.disableManual(self.manualRunner,self.script_Runner,self.spinBox,self.spinBox_2,self.spinBox_3,self.spinBox_4,self.homeDevice,self.homeDevice_2))
-        self.script_Runner.toggled.connect(lambda: self.disableScript(self.manualRunner,self.script_Runner,self.spinBox,self.spinBox_2,self.spinBox_3,self.spinBox_4,self.homeDevice,self.homeDevice_2))
+        self.homeDevice1.clicked.connect(self.homedevice)
+        self.homeDevice2.clicked.connect(self.homedevice)
+        self.run_script.clicked.connect(self.runScript)
+        self.ManualStartSpinBox1.setRange(0, 90)
+        self.ManualRunner.toggled.connect(
+            lambda: self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1, self.manualStopSpinBox1,
+                           self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1, self.manualStepSize2,
+                           self.homeDevice1,self.scriptStartSpinBox1, self.scriptStopSpinBox1,
+                           self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1, self.scriptStepSize2,
+                           self.homeDevice2,self.run_script ))
+        self.script_Runner.toggled.connect(
+            lambda: self.disableScript(self.ManualRunner, self.script_Runner, self.scriptStartSpinBox1,
+                                       self.scriptStopSpinBox1,self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1,
+                                       self.scriptStepSize2,self.homeDevice2,
+                                       self.ManualStartSpinBox1, self.manualStopSpinBox1,
+                                       self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1, self.manualStepSize2,
+                                       self.homeDevice1, self.run_script))
 
         self.uploadData.clicked.connect(self.uploadFiles)
-        self.spinBox.valueChanged.connect(lambda: self.getSpinValueManual(self.spinBox, 1))
-        self.spinBox_2.valueChanged.connect(lambda: self.getSpinValueManual(self.spinBox_2, 2))
+        self.scriptStartSpinBox1.valueChanged.connect(lambda: self.getSpinValue(self.scriptStartSpinBox1, 1))
+        self.scriptStopSpinBox1.valueChanged.connect(lambda: self.getSpinValue(self.scriptStopSpinBox1, 2))
+        self.scriptStepSize1.valueChanged.connect(lambda: self.getSpinValue(self.scriptStepSize1, 3))
+        self.scriptStartSpinBox2.valueChanged.connect(lambda: self.getSpinValue(self.scriptStartSpinBox2, 4))
+        self.scriptStopSpinBox2.valueChanged.connect(lambda: self.getSpinValue(self.scriptStopSpinBox2, 5))
+        self.scriptStepSize2.valueChanged.connect(lambda: self.getSpinValue(self.scriptStepSize2, 6))
         self.run_script.setStyleSheet("border-radius : 50; border: 2px solid black")
 
         self.retranslateUi(AntennaRadiationPatternAnalyzer)
@@ -161,9 +230,48 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         msg = QMessageBox()
         msg.setWindowTitle("Pop Up")
         msg.setText("homing device")
+        msg.exec()
 
-        x = msg.exec()
+    def checkstepSizeElevation(self, Startvalue1, Stopvalue1, Stepvalue1):
+        if((abs(Stopvalue1-Startvalue1) % Stepvalue1) != 0):
+            msg = QMessageBox()
 
+            msg.setWindowTitle("Error")
+            msg.setText("Change start, stop, or step value in elevation inputs as this is not a valid number of steps")
+
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.exec()
+
+    def checkstepSizeAzmuth(self, Startvalue2, Stopvalue2, Stepvalue2):
+        if((abs(Stopvalue2-Startvalue2) % Stepvalue2) != 0):
+            msg = QMessageBox()
+
+            msg.setWindowTitle("Error")
+            msg.setText("Change start, stop, or step value in azmuth inputs as this is not a valid number of steps")
+
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.exec()
+
+    def checkForZero(self, stepValue):
+        if(stepValue == 0):
+            return False
+        return True
+
+    def runScript(self):
+        if(self.checkForZero(self.scriptStepSize1.value()) and self.checkForZero(self.scriptStepSize2.value()) ):
+
+
+            self.checkstepSizeElevation(self.scriptStartSpinBox1.value(), self.scriptStopSpinBox1.value(), self.scriptStepSize1.value())
+            self.checkstepSizeAzmuth(self.scriptStartSpinBox2.value(), self.scriptStopSpinBox2.value(), self.scriptStepSize2.value())
+        else:
+            msg = QMessageBox()
+
+            msg.setWindowTitle("Error")
+            msg.setText("Cannot have 0 step size in any plane")
+
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.exec()
+        return
     def plot(self):
         r = np.arange(0, 2, 0.01)
         theta = 2 * np.pi * r
@@ -199,29 +307,49 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             print(plot.name + "was deleted.")
 
 
-    def disableManual(self, radioButton1, radioButton2, spinbox1, spinbox2, spinbox3, spinbox4, homeDeviceButton, homeDeviceButton2):
+    def disableManual(self, radioButton1, radioButton2, startSpin1, stopSpin1, startSpin2, stopSpin2, stepSize1, stepSize2, homedevice1,startSpin3, stopSpin3, startSpin4, stopSpin4, stepSize3, stepSize4, homedevice2,runScript):
         print("script runner mode initiated")
         radioButton1.setEnabled(False)
-        spinbox1.setEnabled(False)
-        spinbox2.setEnabled(False)
-        radioButton2.setEnabled(True)
-        homeDeviceButton.setEnabled(False)
-        spinbox3.setEnabled(True)
-        spinbox4.setEnabled(True)
-        homeDeviceButton2.setEnabled(True)
-        radioButton2.setChecked(True)
+        startSpin1.setEnabled(False)
+        stopSpin1.setEnabled(False)
+        startSpin2.setEnabled(False)
+        stopSpin2.setEnabled(False)
+        stepSize1.setEnabled(False)
+        stepSize2.setEnabled(False)
+        homedevice1.setEnabled(False)
 
-    def disableScript(self, radioButton1, radioButton2, spinbox1, spinbox2, spinbox3 , spinbox4,homeDeviceButton, homeDeviceButton2):
+        radioButton2.setEnabled(True)
+        radioButton1.setEnabled(False)
+        startSpin3.setEnabled(True)
+        stopSpin3.setEnabled(True)
+        startSpin4.setEnabled(True)
+        stopSpin4.setEnabled(True)
+        stepSize3.setEnabled(True)
+        stepSize4.setEnabled(True)
+        homedevice2.setEnabled(True)
+        runScript.setEnabled(True)
+
+    def disableScript(self, radioButton1, radioButton2, startSpin1, stopSpin1, startSpin2, stopSpin2, stepSize1, stepSize2, homedevice2, startSpin3, stopSpin3, startSpin4, stopSpin4, stepSize3, stepSize4, homedevice1, runScript):
         print("manual runner mode initiated")
-        radioButton2.setEnabled(False)
-        spinbox3.setEnabled(False)
-        spinbox4.setEnabled(False)
+        radioButton1.setEnabled(False)
+        startSpin1.setEnabled(False)
+        stopSpin1.setEnabled(False)
+        startSpin2.setEnabled(False)
+        stopSpin2.setEnabled(False)
+        stepSize1.setEnabled(False)
+        stepSize2.setEnabled(False)
+        homedevice2.setEnabled(False)
+        runScript.setEnabled(False)
+
         radioButton1.setEnabled(True)
-        homeDeviceButton2.setEnabled(False)
-        spinbox1.setEnabled(True)
-        spinbox2.setEnabled(True)
-        homeDeviceButton.setEnabled(True)
-        radioButton1.setChecked(True)
+        radioButton2.setEnabled(False)
+        startSpin3.setEnabled(True)
+        stopSpin3.setEnabled(True)
+        startSpin4.setEnabled(True)
+        stopSpin4.setEnabled(True)
+        stepSize3.setEnabled(True)
+        stepSize4.setEnabled(True)
+        homedevice1.setEnabled(True)
 
 
     def uploadFiles(self):
@@ -239,32 +367,50 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         msg.setText("Upload Successful from " + path)
 
         x = msg.exec()
-    def getSpinValueManual(self, spinbox, val):
-        if(val == 2):
-            value = spinbox.value()
-            print("spinbox1:",value)
+    def getSpinValue(self, spinbox, val):
         if(val == 1):
+            value = spinbox.value()
+            print("startspinbox:",value)
+        if(val == 2):
             value2 = spinbox.value()
-            print("spinbox2:",value2)
+            print("stopspinbox:",value2)
+        if (val == 3):
+            value3 = spinbox.value()
+            print("stepsizebox:", value3)
+        if (val == 4):
+            value4 = spinbox.value()
+            print("startspinbox:", value4)
+        if (val == 5):
+            value5 = spinbox.value()
+            print("stopspinbox:", value5)
+        if (val == 6):
+            value6 = spinbox.value()
+            print("stepsizebox:", value6)
 
     def retranslateUi(self, AntennaRadiationPatternAnalyzer):
         _translate = QtCore.QCoreApplication.translate
         AntennaRadiationPatternAnalyzer.setWindowTitle(_translate("AntennaRadiationPatternAnalyzer", "Widget"))
-        self.headAngleMan.setText(_translate("AntennaRadiationPatternAnalyzer", "Angle of Antenna Head?"))
-        self.manualRunner.setText(_translate("AntennaRadiationPatternAnalyzer", "Manual Script Runner"))
-        self.headAngleMan_2.setText(_translate("AntennaRadiationPatternAnalyzer", "Angle of Arc Increment?"))
-        self.homeDevice.setText(_translate("AntennaRadiationPatternAnalyzer", "Home Device"))
-        self.headAngleMan_3.setText(_translate("AntennaRadiationPatternAnalyzer", "Angle of Antenna Head?"))
+        self.scriptElevation.setText(_translate("AntennaRadiationPatternAnalyzer", "              Elevation"))
         self.script_Runner.setText(_translate("AntennaRadiationPatternAnalyzer", "  Script Runner"))
-        self.angleofarc_4.setText(_translate("AntennaRadiationPatternAnalyzer", "Angle of Arc Increment?"))
-        self.homeDevice_2.setText(_translate("AntennaRadiationPatternAnalyzer", "Home Device"))
+        self.scriptAzmuth.setText(_translate("AntennaRadiationPatternAnalyzer", "              Azmuth"))
+        self.homeDevice2.setText(_translate("AntennaRadiationPatternAnalyzer", "Home Device"))
         self.run_script.setText(_translate("AntennaRadiationPatternAnalyzer", "Run Script"))
+        self.scriptStart.setText(_translate("AntennaRadiationPatternAnalyzer", "Start"))
+        self.scriptStop.setText(_translate("AntennaRadiationPatternAnalyzer", "Stop"))
+        self.scriptStepSize.setText(_translate("AntennaRadiationPatternAnalyzer", "Step Size"))
         self.uploadData.setText(_translate("AntennaRadiationPatternAnalyzer", "Upload File Data"))
         self.exportData.setText(_translate("AntennaRadiationPatternAnalyzer", "Export Data"))
         self.changeView.setText(_translate("AntennaRadiationPatternAnalyzer", "Change View"))
         self.mapFrequency.setText(_translate("AntennaRadiationPatternAnalyzer", "Map Frequency"))
         self.frequencyInputLabel.setText(_translate("AntennaRadiationPatternAnalyzer", "Frequency Input:"))
         self.hz.setText(_translate("AntennaRadiationPatternAnalyzer", "Hz"))
+        self.manualElevation.setText(_translate("AntennaRadiationPatternAnalyzer", "              Elevation"))
+        self.ManualRunner.setText(_translate("AntennaRadiationPatternAnalyzer", "Manual Runner"))
+        self.manualAzmuth.setText(_translate("AntennaRadiationPatternAnalyzer", "              Azmuth"))
+        self.homeDevice1.setText(_translate("AntennaRadiationPatternAnalyzer", "Home Device"))
+        self.manualStart.setText(_translate("AntennaRadiationPatternAnalyzer", "Start"))
+        self.manualStop.setText(_translate("AntennaRadiationPatternAnalyzer", "Stop"))
+        self.manualStepSize.setText(_translate("AntennaRadiationPatternAnalyzer", "Step Size"))
 
 
 
