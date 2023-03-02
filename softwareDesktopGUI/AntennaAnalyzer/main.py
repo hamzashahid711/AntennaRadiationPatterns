@@ -235,6 +235,18 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         msg.setWindowTitle("Pop Up")
         msg.setText("homing device")
         msg.exec()
+        self.parse()
+    
+    def parse(self):
+        file = open("testFiles\graph1.txt", "r")
+        f = file.read()
+        tracePoints = 0
+        for line in f.split("\n"):
+            print(line)
+            if "Number" in line:
+                wholeLine = line.strip()
+                tracePoints = ''.join(x for x in wholeLine if x.isdigit())
+        print("Tracepoints: ", tracePoints)
 
     def checkstepSizeElevation(self, Startvalue1, Stopvalue1, Stepvalue1):
         if((abs(Stopvalue1-Startvalue1) % Stepvalue1) != 0):
