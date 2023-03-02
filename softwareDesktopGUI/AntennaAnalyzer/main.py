@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QMessageBox, QFileDialog
 from matplotlib import pyplot as plt
 import random
 import os
+import re
 from PIL import Image
 import math
 from tempfile import NamedTemporaryFile
@@ -235,18 +236,8 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         msg.setWindowTitle("Pop Up")
         msg.setText("homing device")
         msg.exec()
-        self.parse()
     
-    def parse(self):
-        file = open("testFiles\graph1.txt", "r")
-        f = file.read()
-        tracePoints = 0
-        for line in f.split("\n"):
-            print(line)
-            if "Number" in line:
-                wholeLine = line.strip()
-                tracePoints = ''.join(x for x in wholeLine if x.isdigit())
-        print("Tracepoints: ", tracePoints)
+    
 
     def checkstepSizeElevation(self, Startvalue1, Stopvalue1, Stepvalue1):
         if((abs(Stopvalue1-Startvalue1) % Stepvalue1) != 0):
@@ -352,9 +343,72 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             spinsE.append(0)
             spinsE.append(0)
             spinsE.append(0)
+        tracePoints = int(self.parseTracePoints())
+        self.buildArrays(spinsA, spinsE, tracePoints)
         print(spinsA)
         print("\n")
         print(spinsE)
+        self.parseFrequencies()
+
+    def buildArrays(self, spinsA, spinsE, tracePoints):
+        rows = (spinsA[1] - spinsA[0]) / spinsA[2]
+        columns = (spinsE[1] - spinsE[0]) / spinsE[2]
+        grids = []
+        for i in range(0, tracePoints - 1):
+            grids.append([[0 for x in range(int(columns))] for y in range(int(rows))])
+        for array in grids:
+            print(array)
+            print("*********************")
+        
+
+
+    def parseFrequencies(self):
+        f = open("testFiles\graph1.txt", "r", encoding='utf-16')
+        data = f.read()
+        counter = 0
+        values = ""
+        for char in data:
+            if counter == 2:
+                if char == ']':
+                    counter += 1
+                    break
+                values += char
+
+            if char == '[':
+                counter += 1
+        values = ''.join(values.splitlines())
+        frequencies = values.split()
+        counter = 0
+        for value in frequencies:
+            number = ''.join(x for x in value if x.isdigit())
+            base = number[0] + '.' + number[1:9]
+            print(base)
+            power = number[9:]
+            base = float(base)
+            power = int(power)
+            frequencies[counter] = round((base * (10 ** power)) / (10 ** 9), 2)
+            counter += 1
+        print(frequencies)
+                
+        """
+        start = "["
+        end = "]"
+        print((data.split(start))[1].split(end)[0])
+        """
+        """
+        for line in data:
+            if 'Number' in line:
+                wholeLine = line.strip()
+                tracePoints = ''.join(x for x in wholeLine if x.isdigit())
+        """
+    def parseTracePoints(self):
+        f = open("testFiles\graph1.txt", "r", encoding='utf-16')
+        data = f.readlines()
+        for line in data:
+            if 'Number' in line:
+                wholeLine = line.strip()
+                tracePoints = ''.join(x for x in wholeLine if x.isdigit())
+        return tracePoints
 
     def plot(self):
         r = np.arange(0, 2, 0.01)
