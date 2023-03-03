@@ -119,10 +119,9 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.hz = QtWidgets.QLabel(self.fruqencyMapContainer)
         self.hz.setGeometry(QtCore.QRect(220, 20, 58, 16))
         self.hz.setObjectName("hz")
-        self.spinBox_5 = QtWidgets.QSpinBox(self.fruqencyMapContainer)
-        self.spinBox_5.setGeometry(QtCore.QRect(130, 11, 81, 31))
-        self.spinBox_5.setStyleSheet("background-color:rgb(255,255,255)")
-        self.spinBox_5.setObjectName("spinBox_5")
+        self.doubleSpinBox = QtWidgets.QDoubleSpinBox(self.fruqencyMapContainer)
+        self.doubleSpinBox.setGeometry(QtCore.QRect(130, 10, 81, 41))
+        self.doubleSpinBox.setObjectName("doubleSpinBox")
         self.imagePlot = QtWidgets.QLabel(AntennaRadiationPatternAnalyzer)
         self.imagePlot.setGeometry(QtCore.QRect(330, 80, 571, 451))
         self.imagePlot.setText("")
@@ -190,33 +189,40 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         #initial state
         self.script_Runner.setChecked(True)
         self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1, self.manualStopSpinBox1,
-                           self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1, self.manualStepSize2,
-                           self.homeDevice1,self.scriptStartSpinBox1, self.scriptStopSpinBox1,
-                           self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1, self.scriptStepSize2,
-                           self.homeDevice2, self.run_script )
-        self.scriptStartSpinBox1.setRange(-90,90)
+                           self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1,
+                           self.manualStepSize2,
+                           self.homeDevice1, self.scriptStartSpinBox1, self.scriptStopSpinBox1,
+                           self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1,
+                           self.scriptStepSize2,
+                           self.homeDevice2, self.run_script)
+        self.scriptStartSpinBox1.setRange(-90, 90)
         self.scriptStartSpinBox2.setRange(-90, 90)
         self.scriptStopSpinBox2.setRange(-90, 90)
         self.scriptStopSpinBox1.setRange(-90, 90)
-
-        #function calls
+        # function calls
         self.mapFrequency.clicked.connect(self.plot)
         self.homeDevice1.clicked.connect(self.homedevice)
         self.homeDevice2.clicked.connect(self.homedevice)
         self.run_script.clicked.connect(self.runScript)
         self.ManualStartSpinBox1.setRange(0, 90)
+        self.doubleSpinBox.valueChanged.connect(lambda: self.frequencySpinner(self.doubleSpinBox, []))
         self.ManualRunner.toggled.connect(
-            lambda: self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1, self.manualStopSpinBox1,
-                           self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1, self.manualStepSize2,
-                           self.homeDevice1,self.scriptStartSpinBox1, self.scriptStopSpinBox1,
-                           self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1, self.scriptStepSize2,
-                           self.homeDevice2,self.run_script ))
+            lambda: self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1,
+                                       self.manualStopSpinBox1,
+                                       self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1,
+                                       self.manualStepSize2,
+                                       self.homeDevice1, self.scriptStartSpinBox1, self.scriptStopSpinBox1,
+                                       self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1,
+                                       self.scriptStepSize2,
+                                       self.homeDevice2, self.run_script))
         self.script_Runner.toggled.connect(
             lambda: self.disableScript(self.ManualRunner, self.script_Runner, self.scriptStartSpinBox1,
-                                       self.scriptStopSpinBox1,self.scriptStartSpinBox2, self.scriptStopSpinBox2, self.scriptStepSize1,
-                                       self.scriptStepSize2,self.homeDevice2,
+                                       self.scriptStopSpinBox1, self.scriptStartSpinBox2, self.scriptStopSpinBox2,
+                                       self.scriptStepSize1,
+                                       self.scriptStepSize2, self.homeDevice2,
                                        self.ManualStartSpinBox1, self.manualStopSpinBox1,
-                                       self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1, self.manualStepSize2,
+                                       self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1,
+                                       self.manualStepSize2,
                                        self.homeDevice1, self.run_script))
 
         self.uploadData.clicked.connect(self.uploadFiles)
@@ -231,6 +237,13 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.retranslateUi(AntennaRadiationPatternAnalyzer)
         QtCore.QMetaObject.connectSlotsByName(AntennaRadiationPatternAnalyzer)
 
+    def frequencySpinner(self, frequencySpinner, array):
+        #this array is an example you would pass the freqeuncy vals to this to the 2nd decimal
+        array = [1.32, 2.42, 3.53]
+        frequencySpinner.setRange(array[0], array[len(array) - 1])
+        value = frequencySpinner.value()
+        closest = array[min(range(len(array)), key=lambda i: abs(array[i] - value))]
+        frequencySpinner.setValue(closest)
     def homedevice(self):
         msg = QMessageBox()
         msg.setWindowTitle("Pop Up")

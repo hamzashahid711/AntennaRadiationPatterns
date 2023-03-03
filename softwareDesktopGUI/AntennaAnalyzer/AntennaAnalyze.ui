@@ -367,17 +367,14 @@
      <string>Hz</string>
     </property>
    </widget>
-   <widget class="QSpinBox" name="spinBox_5">
+   <widget class="QDoubleSpinBox" name="doubleSpinBox">
     <property name="geometry">
      <rect>
       <x>130</x>
-      <y>11</y>
+      <y>10</y>
       <width>81</width>
-      <height>31</height>
+      <height>41</height>
      </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:rgb(255,255,255)</string>
     </property>
    </widget>
   </widget>
