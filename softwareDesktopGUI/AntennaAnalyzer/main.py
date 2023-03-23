@@ -246,7 +246,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         QtCore.QMetaObject.connectSlotsByName(AntennaRadiationPatternAnalyzer)
 
     def sweep(self):
-        SCPI_server_IP = '169.254.60.76'
+        SCPI_server_IP = '169.254.191.128'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
@@ -254,14 +254,14 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         visaSession = visa.ResourceManager().open_resource(VISA_resource_name)
         visaSession.timeout = SCPI_timeout
         visaSession.read_termination = '\n'
+        #set s21, get frequency vector, init 0
         for i in range(2):
-            visaSession.write(':TRIG:SING')
+            visaSession.write('INIT:CONT 0')
+            visaSession.write('INITiate:IMMediate')
             finish = visaSession.query(
                 '*OPC?')  # this command waits for all pending operations to finish and afterwards returns an 1
-        print(finish)
         allResults = visaSession.query(":CALC:DATA:SDAT?")
-        frequencyValues = visaSession.query(":SENS:FREQ:DATA?")
-        print(frequencyValues + '\n')
+        frequencyValues = visaSession.query(":SENS:FREQ:DATA?") #call once
         print(allResults + '\n')
         allResults_list_raw = list(map(float, allResults.split(",")))
         magnitude_raw = allResults_list_raw[0:2 - 1]
@@ -271,9 +271,9 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         freq_list_raw = list(map(float, frequencyValues.split(",")))
 
         # Printing just the first results of each measurement cycle
-        print("Measurement number: " + str(i + 1) + "; " + "\tFrequency: " + str(
-            freq_list_raw[0]) + " Hz;" + "\tMagnitude: " + str(magnitude_raw[0]) + " Ω;" + "\tPhase: " + str(
-            phase_raw[0]) + "°")
+        # print("Measurement number: " + str(i + 1) + "; " + "\tFrequency: " + str(
+        #     freq_list_raw[0]) + " Hz;" + "\tMagnitude: " + str(magnitude_raw[0]) + " Ω;" + "\tPhase: " + str(
+        #     phase_raw[0]) + "°")
 
         visaSession.close()
 
