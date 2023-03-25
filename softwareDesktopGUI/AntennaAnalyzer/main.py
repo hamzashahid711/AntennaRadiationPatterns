@@ -254,6 +254,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         visaSession = visa.ResourceManager().open_resource(VISA_resource_name)
         visaSession.timeout = SCPI_timeout
         visaSession.read_termination = '\n'
+        visaSession.write('INP:LAN:ADDR "169.254.191.128"')
         #set s21, get frequency vector, init 0
         for i in range(2):
             visaSession.write('INIT:CONT 0')
