@@ -17,7 +17,11 @@ from PIL import Image
 import math
 from tempfile import NamedTemporaryFile
 
+# global values
 spinArray = []
+spinsA = []
+spinsE = []
+grids = []
 
 
 class Ui_AntennaRadiationPatternAnalyzer(object):
@@ -246,37 +250,62 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         QtCore.QMetaObject.connectSlotsByName(AntennaRadiationPatternAnalyzer)
 
     def sweep(self):
-        SCPI_server_IP = '169.254.191.128'
+
+        # initilize
+
+        SCPI_server_IP = '169.254.232.3'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
-
         visaSession = visa.ResourceManager().open_resource(VISA_resource_name)
         visaSession.timeout = SCPI_timeout
         visaSession.read_termination = '\n'
-        visaSession.write('INP:LAN:ADDR "169.254.191.128"')
-        #set s21, get frequency vector, init 0
-        for i in range(2):
-            visaSession.write('INIT:CONT 0')
-            visaSession.write('INITiate:IMMediate')
-            finish = visaSession.query(
-                '*OPC?')  # this command waits for all pending operations to finish and afterwards returns an 1
-        allResults = visaSession.query(":CALC:DATA:SDAT?")
-        frequencyValues = visaSession.query(":SENS:FREQ:DATA?") #call once
-        print(allResults + '\n')
-        allResults_list_raw = list(map(float, allResults.split(",")))
-        magnitude_raw = allResults_list_raw[0:2 - 1]
-        phase_raw = allResults_list_raw[2:len(allResults_list_raw)]
+        visaSession.write('INIT:CONT 0')
+        visaSession.write('INITiate:IMMediate')
+        visaSession.write('CALC:PAR:DEF S21')
 
-        # Frequency raw data to list
-        freq_list_raw = list(map(float, frequencyValues.split(",")))
+        frequencyValues = visaSession.query(":SENS:FREQ:DATA?")
+        frequencyValues_list = list(map(float, frequencyValues.split(",")))
 
-        # Printing just the first results of each measurement cycle
-        # print("Measurement number: " + str(i + 1) + "; " + "\tFrequency: " + str(
-        #     freq_list_raw[0]) + " Hz;" + "\tMagnitude: " + str(magnitude_raw[0]) + " Ω;" + "\tPhase: " + str(
-        #     phase_raw[0]) + "°")
+        for i in range(0, len(frequencyValues_list)):
+            frequencyValues_list[i] = frequencyValues_list[i] / (10 ** 9)
+
+        self.buildArrays(spinsA, spinsE, len(frequencyValues_list))
+
+        finish = visaSession.query(
+            '*OPC?')  # this command waits for all pending operations to finish and afterwards returns an 1
+
+        numrows = len(grids[0])
+        numcols = len(grids[0][0])
+        Matrix = [[0 for x in range(numcols)] for y in range(numrows)]
+        counter = 0
+        for i in range(0, numrows):
+            if (counter == 0):
+                for j in range(0, numcols):
+                    magnitudes = self.magnitudes(visaSession)
+                    for k in range(0, len(magnitudes)):
+                        grids[k][i][j] = magnitudes[k]
+
+            if (counter == 1):
+                for j in range(numcols - 1, -1, -1):
+                    magnitudes = self.magnitudes(visaSession)
+                    for k in range(0, len(magnitudes)):
+                        grids[k][i][j] = magnitudes[k]
+            counter = (counter + 1) % 2
+
+        print(grids)
 
         visaSession.close()
+
+    def magnitudes(self, visaSession):
+        allResults = visaSession.query(":CALC:DATA:SDAT?")
+        allResults_list = list(map(float, allResults.split(",")))
+        magnitudesList = []
+        for i in range(0, len(allResults_list), 2):
+            magnitude = allResults_list[i] ** 2 + allResults_list[i + 1] ** 2
+            magnitude = magnitude ** .5
+            magnitudesList.append(magnitude)
+        return magnitudesList
 
     def frequencySpinner(self, frequencySpinner, array):
         global spinArray
@@ -288,6 +317,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             closest = array[min(range(len(array)), key=lambda i: abs(array[i] - value))]
             frequencySpinner.setValue(closest)
         frequencySpinner.setValue(0)
+
     def homedevice(self):
         msg = QMessageBox()
         msg.setWindowTitle("Pop Up")
@@ -324,8 +354,8 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         return True
 
     def runScript(self):
-        spinsA = []
-        spinsE = []
+        global spinsA
+        global spinsE
         if (
                 self.scriptStepSize1.value() == 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0 and self.scriptStepSize2.value() == 0 and self.scriptStartSpinBox2.value() == 0 and self.scriptStopSpinBox2.value() == 0):
             msg = QMessageBox()
@@ -359,7 +389,6 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             if (self.checkForZero(self.scriptStepSize1.value())):
                 if (self.checkstepSizeElevation(self.scriptStartSpinBox1.value(), self.scriptStopSpinBox1.value(),
                                                 self.scriptStepSize1.value())):
-                    print("made")
                     spinsE.append(self.scriptStartSpinBox1.value())
                     spinsE.append(self.scriptStopSpinBox1.value())
                     spinsE.append(self.scriptStepSize1.value())
@@ -404,21 +433,21 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             spinsE.append(0)
             spinsE.append(0)
         tracePoints = int(self.parseTracePoints())
-        self.buildArrays(spinsA, spinsE, tracePoints)
         print(spinsA)
         print("\n")
         print(spinsE)
         self.parseFrequencies()
 
     def buildArrays(self, spinsA, spinsE, tracePoints):
+        global grids
         rows = (spinsA[1] - spinsA[0]) / spinsA[2]
         columns = (spinsE[1] - spinsE[0]) / spinsE[2]
-        grids = []
-        for i in range(0, tracePoints - 1):
+        for i in range(0, tracePoints):
             grids.append([[0 for x in range(int(columns))] for y in range(int(rows))])
-        for array in grids:
-            print(array)
-            print("*********************")
+
+        # for array in grids:
+        #     print(array)
+        #     print("*********************")
 
     def parseFrequencies(self):
         global spinArray
@@ -614,6 +643,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.manualStart.setText(_translate("AntennaRadiationPatternAnalyzer", "Start"))
         self.manualStop.setText(_translate("AntennaRadiationPatternAnalyzer", "Stop"))
         self.manualStepSize.setText(_translate("AntennaRadiationPatternAnalyzer", "Step Size"))
+
 
 if __name__ == "__main__":
     import sys
