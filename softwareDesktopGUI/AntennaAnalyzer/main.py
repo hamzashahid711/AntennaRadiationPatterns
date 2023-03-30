@@ -476,6 +476,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
     def buildArrays(self, spinsA, spinsE, tracePoints):
         global grids
+        grids = []
         rows = (spinsA[1] - spinsA[0]) / spinsA[2]
         columns = (spinsE[1] - spinsE[0]) / spinsE[2]
         for i in range(0, tracePoints):
@@ -538,13 +539,13 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         return tracePoints
 
     def plot(self):
-        r = np.arange(0, 2, 0.01)
-        theta = 2 * np.pi * r
+        r = np.arange(spinsE[0], spinsE[1], spinsE[2])
+        theta = grids[2][1]
 
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-        ax.plot(theta, r)
-        ax.set_rmax(2)
-        ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
+        ax.plot(r, theta)
+        ax.set_rmax(.003)
+        # ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
         ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
         ax.grid(True)
 
