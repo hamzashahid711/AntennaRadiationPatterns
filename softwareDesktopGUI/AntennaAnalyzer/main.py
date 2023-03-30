@@ -253,7 +253,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         # initilize
 
-        SCPI_server_IP = '169.254.232.3'
+        SCPI_server_IP = '169.254.45.134'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
@@ -292,8 +292,12 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                     for k in range(0, len(magnitudes)):
                         grids[k][i][j] = magnitudes[k]
             counter = (counter + 1) % 2
+        for i in range(0, len(frequencyValues_list)):
+            place = i + 1
+            print("Frequency " + str(place) + ": " + str(frequencyValues_list[i]))
+            grid = grids[i]
+            print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in grid]))
 
-        print(grids)
 
         visaSession.close()
 
@@ -432,11 +436,10 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             spinsE.append(0)
             spinsE.append(0)
             spinsE.append(0)
-        tracePoints = int(self.parseTracePoints())
         print(spinsA)
         print("\n")
         print(spinsE)
-        self.parseFrequencies()
+        self.sweep()
 
     def buildArrays(self, spinsA, spinsE, tracePoints):
         global grids
@@ -451,7 +454,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
     def parseFrequencies(self):
         global spinArray
-        f = open("softwareDesktopGUI\AntennaAnalyzer\graph1.txt", "r", encoding='utf-16')
+        f = open("graph1.txt", "r", encoding='utf-16')
         data = f.read()
         counter = 0
         values = ""
@@ -493,7 +496,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         """
 
     def parseTracePoints(self):
-        f = open("softwareDesktopGUI\AntennaAnalyzer\graph1.txt", "r", encoding='utf-16')
+        f = open("graph1.txt", "r", encoding='utf-16')
         data = f.readlines()
         for line in data:
             if 'Number' in line:
