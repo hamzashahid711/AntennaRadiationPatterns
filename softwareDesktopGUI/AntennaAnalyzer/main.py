@@ -96,44 +96,48 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.scriptStepSize.setGeometry(QtCore.QRect(210, 90, 61, 20))
         self.scriptStepSize.setObjectName("scriptStepSize")
         self.buttonContainer = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.buttonContainer.setGeometry(QtCore.QRect(270, 540, 691, 61))
+        self.buttonContainer.setGeometry(QtCore.QRect(240, 540, 791, 61))
         self.buttonContainer.setStyleSheet("background-color:rgb(211,211,211)")
         self.buttonContainer.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.buttonContainer.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.buttonContainer.setObjectName("buttonContainer")
         self.uploadData = QtWidgets.QPushButton(self.buttonContainer)
-        self.uploadData.setGeometry(QtCore.QRect(40, 10, 121, 41))
+        self.uploadData.setGeometry(QtCore.QRect(150, 10, 121, 41))
         self.uploadData.setStyleSheet("background-color:rgb(255,255,255)\n"
                                       "")
         self.uploadData.setObjectName("uploadData")
         self.exportData = QtWidgets.QPushButton(self.buttonContainer)
-        self.exportData.setGeometry(QtCore.QRect(280, 10, 121, 41))
+        self.exportData.setGeometry(QtCore.QRect(450, 10, 121, 41))
         self.exportData.setStyleSheet("background-color:rgb(255,255,255)")
         self.exportData.setObjectName("exportData")
-        self.changeView = QtWidgets.QPushButton(self.buttonContainer)
-        self.changeView.setGeometry(QtCore.QRect(530, 10, 121, 41))
-        self.changeView.setStyleSheet("background-color:rgb(255,255,255)\n"
-                                      "")
-        self.changeView.setObjectName("changeView")
         self.fruqencyMapContainer = QtWidgets.QFrame(AntennaRadiationPatternAnalyzer)
-        self.fruqencyMapContainer.setGeometry(QtCore.QRect(300, 0, 651, 61))
+        self.fruqencyMapContainer.setGeometry(QtCore.QRect(240, 0, 791, 61))
         self.fruqencyMapContainer.setStyleSheet("background-color:rgb(211,211,211)")
         self.fruqencyMapContainer.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.fruqencyMapContainer.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.fruqencyMapContainer.setObjectName("fruqencyMapContainer")
         self.mapFrequency = QtWidgets.QPushButton(self.fruqencyMapContainer)
-        self.mapFrequency.setGeometry(QtCore.QRect(520, 10, 121, 41))
+        self.mapFrequency.setGeometry(QtCore.QRect(640, 10, 121, 41))
         self.mapFrequency.setStyleSheet("background-color:rgb(255,255,255)")
         self.mapFrequency.setObjectName("mapFrequency")
         self.frequencyInputLabel = QtWidgets.QLabel(self.fruqencyMapContainer)
-        self.frequencyInputLabel.setGeometry(QtCore.QRect(20, 20, 101, 16))
+        self.frequencyInputLabel.setGeometry(QtCore.QRect(10, 20, 101, 16))
         self.frequencyInputLabel.setObjectName("frequencyInputLabel")
         self.hz = QtWidgets.QLabel(self.fruqencyMapContainer)
-        self.hz.setGeometry(QtCore.QRect(220, 20, 58, 16))
+        self.hz.setGeometry(QtCore.QRect(230, 20, 58, 16))
         self.hz.setObjectName("hz")
-        self.doubleSpinBox = QtWidgets.QDoubleSpinBox(self.fruqencyMapContainer)
-        self.doubleSpinBox.setGeometry(QtCore.QRect(130, 10, 81, 41))
-        self.doubleSpinBox.setObjectName("doubleSpinBox")
+        self.frequencyDropDown = QtWidgets.QComboBox(self.fruqencyMapContainer)
+        self.frequencyDropDown.setGeometry(QtCore.QRect(120, 10, 103, 41))
+        self.frequencyDropDown.setObjectName("frequencyDropDown")
+        self.verticleAngles = QtWidgets.QRadioButton(self.fruqencyMapContainer)
+        self.verticleAngles.setGeometry(QtCore.QRect(280, 10, 121, 20))
+        self.verticleAngles.setObjectName("verticleAngles")
+        self.horizontalAngles = QtWidgets.QRadioButton(self.fruqencyMapContainer)
+        self.horizontalAngles.setGeometry(QtCore.QRect(280, 30, 131, 20))
+        self.horizontalAngles.setObjectName("horizontalAngles")
+        self.anglesDropDown = QtWidgets.QComboBox(self.fruqencyMapContainer)
+        self.anglesDropDown.setGeometry(QtCore.QRect(470, 10, 103, 41))
+        self.anglesDropDown.setObjectName("anglesDropDown")
         self.imagePlot = QtWidgets.QLabel(AntennaRadiationPatternAnalyzer)
         self.imagePlot.setGeometry(QtCore.QRect(330, 80, 571, 451))
         self.imagePlot.setText("")
@@ -199,6 +203,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.manualStepSize.setObjectName("manualStepSize")
 
         # initial state
+        self.frequenciesDropDown(self.frequencyDropDown, [])
         self.script_Runner.setChecked(True)
         self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1, self.manualStopSpinBox1,
                            self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1,
@@ -217,7 +222,6 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.homeDevice2.clicked.connect(self.homedevice)
         self.run_script.clicked.connect(self.runScript)
         self.ManualStartSpinBox1.setRange(0, 90)
-        self.doubleSpinBox.valueChanged.connect(lambda: self.frequencySpinner(self.doubleSpinBox, spinArray))
         self.ManualRunner.toggled.connect(
             lambda: self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1,
                                        self.manualStopSpinBox1,
@@ -311,16 +315,18 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             magnitudesList.append(magnitude)
         return magnitudesList
 
-    def frequencySpinner(self, frequencySpinner, array):
-        global spinArray
-        array = spinArray
-        if (len(array) != 0):
-            frequencySpinner.setSingleStep(.5)
-            frequencySpinner.setRange(array[0], array[len(array) - 1])
-            value = frequencySpinner.value()
-            closest = array[min(range(len(array)), key=lambda i: abs(array[i] - value))]
-            frequencySpinner.setValue(closest)
-        frequencySpinner.setValue(0)
+    def frequenciesDropDown(self, frequencydrop, frequencyarray):
+        frequencyarray = [1,3,4,5]
+        if len(frequencyarray) != 0:
+            for i in range(0,len(frequencyarray)):
+                print(i)
+                frequencydrop.addItem(str(frequencyarray[i]))
+
+    def angleDropDownVerticle(self, angledrop, anglearray):
+        for i in anglearray:
+            angledrop.addItem(str(i))
+
+
 
     def homedevice(self):
         msg = QMessageBox()
@@ -360,6 +366,9 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
     def runScript(self):
         global spinsA
         global spinsE
+        spinsE.clear()
+        spinsA.clear()
+
         if (
                 self.scriptStepSize1.value() == 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0 and self.scriptStepSize2.value() == 0 and self.scriptStartSpinBox2.value() == 0 and self.scriptStopSpinBox2.value() == 0):
             msg = QMessageBox()
@@ -388,6 +397,24 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.exec()
             return
+        if  self.scriptStartSpinBox2.value() > self.scriptStopSpinBox2.value():
+            msg = QMessageBox()
+
+            msg.setWindowTitle("Error")
+            msg.setText("Cannot have a start greater than the stop in azmuth plane")
+
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.exec()
+            return
+        if  self.scriptStartSpinBox1.value() > self.scriptStopSpinBox1.value():
+            msg = QMessageBox()
+
+            msg.setWindowTitle("Error")
+            msg.setText("Cannot have a start greater than the stop in elevation plane")
+
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.exec()
+            return
         if (
                 self.scriptStartSpinBox1.value() > 0 or self.scriptStartSpinBox1.value() < 0 or self.scriptStopSpinBox1.value() > 0 or self.scriptStopSpinBox1.value() < 0):
             if (self.checkForZero(self.scriptStepSize1.value())):
@@ -408,8 +435,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                 msg.setIcon(QMessageBox.Icon.Critical)
                 msg.exec()
                 return
-        if (
-                self.scriptStartSpinBox2.value() > 0 or self.scriptStartSpinBox2.value() < 0 or self.scriptStopSpinBox2.value() > 0 or self.scriptStopSpinBox2.value() < 0):
+        if (self.scriptStartSpinBox2.value() > 0 or self.scriptStartSpinBox2.value() < 0 or self.scriptStopSpinBox2.value() > 0 or self.scriptStopSpinBox2.value() < 0):
             if (self.checkForZero(self.scriptStepSize2.value())):
                 if (self.checkstepSizeAzmuth(self.scriptStartSpinBox2.value(), self.scriptStopSpinBox2.value(),
                                              self.scriptStepSize2.value())):
@@ -439,6 +465,13 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         print(spinsA)
         print("\n")
         print(spinsE)
+        elevationArray = []
+        elevationArray.clear()
+        self.anglesDropDown.clear()
+        print(self.anglesDropDown.itemData(0))
+        for i in range(( spinsE[0]), (spinsE[1])+1, spinsE[2]):
+            elevationArray.append(i)
+        self.angleDropDownVerticle(self.anglesDropDown, elevationArray)
         self.sweep()
 
     def buildArrays(self, spinsA, spinsE, tracePoints):
@@ -635,10 +668,11 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.scriptStepSize.setText(_translate("AntennaRadiationPatternAnalyzer", "Step Size"))
         self.uploadData.setText(_translate("AntennaRadiationPatternAnalyzer", "Upload File Data"))
         self.exportData.setText(_translate("AntennaRadiationPatternAnalyzer", "Export Data"))
-        self.changeView.setText(_translate("AntennaRadiationPatternAnalyzer", "Change View"))
         self.mapFrequency.setText(_translate("AntennaRadiationPatternAnalyzer", "Map Frequency"))
         self.frequencyInputLabel.setText(_translate("AntennaRadiationPatternAnalyzer", "Frequency Input:"))
         self.hz.setText(_translate("AntennaRadiationPatternAnalyzer", "Hz"))
+        self.verticleAngles.setText(_translate("AntennaRadiationPatternAnalyzer", "Verticle Angles"))
+        self.horizontalAngles.setText(_translate("AntennaRadiationPatternAnalyzer", "Horizontal Angles"))
         self.manualElevation.setText(_translate("AntennaRadiationPatternAnalyzer", "              Elevation"))
         self.ManualRunner.setText(_translate("AntennaRadiationPatternAnalyzer", "Manual Runner"))
         self.manualAzmuth.setText(_translate("AntennaRadiationPatternAnalyzer", "              Azmuth"))

@@ -241,9 +241,9 @@
   <widget class="QFrame" name="buttonContainer">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>240</x>
      <y>540</y>
-     <width>691</width>
+     <width>791</width>
      <height>61</height>
     </rect>
    </property>
@@ -259,7 +259,7 @@
    <widget class="QPushButton" name="uploadData">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>150</x>
       <y>10</y>
       <width>121</width>
       <height>41</height>
@@ -276,7 +276,7 @@
    <widget class="QPushButton" name="exportData">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>450</x>
       <y>10</y>
       <width>121</width>
       <height>41</height>
@@ -289,30 +289,13 @@
      <string>Export Data</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="changeView">
-    <property name="geometry">
-     <rect>
-      <x>530</x>
-      <y>10</y>
-      <width>121</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:rgb(255,255,255)
-</string>
-    </property>
-    <property name="text">
-     <string>Change View</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QFrame" name="fruqencyMapContainer">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>240</x>
      <y>0</y>
-     <width>651</width>
+     <width>791</width>
      <height>61</height>
     </rect>
    </property>
@@ -328,7 +311,7 @@
    <widget class="QPushButton" name="mapFrequency">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>640</x>
       <y>10</y>
       <width>121</width>
       <height>41</height>
@@ -344,7 +327,7 @@
    <widget class="QLabel" name="frequencyInputLabel">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>20</y>
       <width>101</width>
       <height>16</height>
@@ -357,7 +340,7 @@
    <widget class="QLabel" name="hz">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>230</x>
       <y>20</y>
       <width>58</width>
       <height>16</height>
@@ -367,12 +350,48 @@
      <string>Hz</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="doubleSpinBox">
+   <widget class="QComboBox" name="frequencyDropDown">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>120</x>
       <y>10</y>
-      <width>81</width>
+      <width>103</width>
+      <height>41</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="verticleAngles">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>10</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Verticle Angles</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="horizontalAngles">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>30</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Horizontal Angles</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="anglesDropDown">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>10</y>
+      <width>103</width>
       <height>41</height>
      </rect>
     </property>
