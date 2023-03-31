@@ -22,6 +22,8 @@ spinArray = []
 spinsA = []
 spinsE = []
 grids = []
+elevationArray = []
+horizontalArray = []
 
 
 class Ui_AntennaRadiationPatternAnalyzer(object):
@@ -203,7 +205,9 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.manualStepSize.setObjectName("manualStepSize")
 
         # initial state
+        self.mapFrequency.setEnabled(False)
         self.frequenciesDropDown(self.frequencyDropDown, [])
+        self.verticleAngles.setChecked(True)
         self.script_Runner.setChecked(True)
         self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1, self.manualStopSpinBox1,
                            self.manualStartSpinBox2, self.manualStopSpinBox2, self.manualStepSize1,
@@ -216,12 +220,14 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.scriptStartSpinBox2.setRange(-90, 90)
         self.scriptStopSpinBox2.setRange(-90, 90)
         self.scriptStopSpinBox1.setRange(-90, 90)
+
         # function calls
         self.mapFrequency.clicked.connect(self.plot)
         self.homeDevice1.clicked.connect(self.homedevice)
         self.homeDevice2.clicked.connect(self.homedevice)
         self.run_script.clicked.connect(self.runScript)
         self.ManualStartSpinBox1.setRange(0, 90)
+        self.verticleAngles.toggled.connect(lambda : self.toggleAngleDrop(self.verticleAngles, self.horizontalAngles))
         self.ManualRunner.toggled.connect(
             lambda: self.disableManual(self.ManualRunner, self.script_Runner, self.ManualStartSpinBox1,
                                        self.manualStopSpinBox1,
@@ -252,6 +258,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         self.retranslateUi(AntennaRadiationPatternAnalyzer)
         QtCore.QMetaObject.connectSlotsByName(AntennaRadiationPatternAnalyzer)
+
 
     def sweep(self):
 
@@ -302,7 +309,6 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             grid = grids[i]
             print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in grid]))
 
-
         visaSession.close()
 
     def magnitudes(self, visaSession):
@@ -322,10 +328,9 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                 print(i)
                 frequencydrop.addItem(str(frequencyarray[i]))
 
-    def angleDropDownVerticle(self, angledrop, anglearray):
+    def angleDropDownMenu(self, angledrop, anglearray):
         for i in anglearray:
             angledrop.addItem(str(i))
-
 
 
     def homedevice(self):
@@ -366,8 +371,12 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
     def runScript(self):
         global spinsA
         global spinsE
+        global elevationArray
+        global horizontalArray
         spinsE.clear()
         spinsA.clear()
+        elevationArray.clear()
+        horizontalArray.clear()
 
         if (
                 self.scriptStepSize1.value() == 0 and self.scriptStartSpinBox1.value() == 0 and self.scriptStopSpinBox1.value() == 0 and self.scriptStepSize2.value() == 0 and self.scriptStartSpinBox2.value() == 0 and self.scriptStopSpinBox2.value() == 0):
@@ -465,15 +474,30 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         print(spinsA)
         print("\n")
         print(spinsE)
-        elevationArray = []
-        elevationArray.clear()
+
         self.anglesDropDown.clear()
         print(self.anglesDropDown.itemData(0))
-        for i in range(( spinsE[0]), (spinsE[1])+1, spinsE[2]):
-            elevationArray.append(i)
-        self.angleDropDownVerticle(self.anglesDropDown, elevationArray)
+        if self.checkArray(spinsE):
+            for i in range(( spinsE[0]), (spinsE[1])+1, spinsE[2]):
+                elevationArray.append(i)
+        else:
+            elevationArray.append(0)
+        if self.checkArray(spinsA):
+            for i in range(( spinsA[0]), (spinsA[1])+1, spinsA[2]):
+                horizontalArray.append(i)
+        else:
+            horizontalArray.append(0)
+        self.angleDropDownMenu(self.anglesDropDown, elevationArray)
         self.sweep()
 
+    def checkArray(self, array):
+        count = 0
+        for i in array:
+            if i == 0:
+                count = count + 1
+        if count == 3:
+            return False
+        return True
     def buildArrays(self, spinsA, spinsE, tracePoints):
         global grids
         grids = []
@@ -619,6 +643,26 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         stepSize3.setEnabled(True)
         stepSize4.setEnabled(True)
         homedevice1.setEnabled(True)
+
+    def toggleAngleDrop(self, verticleRadio, horizontalRadio):
+        verticleRadio.setChecked(False)
+        horizontalRadio.setEnabled(True)
+
+        if verticleRadio.isChecked():
+            self.anglesDropDown.clear()
+            self.angleDropDownMenu(self.anglesDropDown, elevationArray)
+            if self.anglesDropDown.count() >= 1 and self.frequencyDropDown.count() >= 1:
+                self.mapFrequency.setEnabled(True)
+            else:
+                self.mapFrequency.setEnabled(False)
+        else:
+            self.anglesDropDown.clear()
+            self.angleDropDownMenu(self.anglesDropDown, horizontalArray)
+            if self.anglesDropDown.count() >= 1 and self.frequencyDropDown.count() >= 1:
+                self.mapFrequency.setEnabled(True)
+            else:
+                self.mapFrequency.setEnabled(False)
+
 
     def uploadFiles(self):
         fileName = QFileDialog.getOpenFileName(None, 'Open File', "", "Image Files (*.png)")
