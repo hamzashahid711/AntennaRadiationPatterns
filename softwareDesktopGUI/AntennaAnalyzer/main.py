@@ -563,6 +563,10 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         return tracePoints
 
     def plot(self):
+        print(self.verticleAngles.clicked)
+        print(self.horizontalAngles.clicked)
+        print(self.anglesDropDown.currentIndex)
+        print(self.frequencyDropDown.currentIndex)
         r = np.arange(spinsE[0], spinsE[1], spinsE[2])
         theta = grids[2][1]
 
