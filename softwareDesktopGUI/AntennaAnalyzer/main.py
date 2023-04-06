@@ -264,7 +264,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         # initilize
 
-        SCPI_server_IP = '169.254.45.134'
+        SCPI_server_IP = '169.254.70.21'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
@@ -501,8 +501,8 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
     def buildArrays(self, spinsA, spinsE, tracePoints):
         global grids
         grids = []
-        rows = (spinsA[1] - spinsA[0]) / spinsA[2]
-        columns = (spinsE[1] - spinsE[0]) / spinsE[2]
+        rows = (((spinsE[1] - spinsE[0]) / spinsE[2]) + 1)
+        columns = (((spinsA[1] - spinsA[0]) / spinsA[2]) + 1)
         for i in range(0, tracePoints):
             grids.append([[0 for x in range(int(columns))] for y in range(int(rows))])
 
@@ -563,12 +563,24 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         return tracePoints
 
     def plot(self):
-        print(self.verticleAngles.clicked)
-        print(self.horizontalAngles.clicked)
-        print(self.anglesDropDown.currentIndex)
-        print(self.frequencyDropDown.currentIndex)
-        r = np.arange(spinsE[0], spinsE[1], spinsE[2])
-        theta = grids[2][1]
+        theta = []
+        if (self.verticleAngles.isChecked() == True):
+            degrees = np.arange(spinsA[0], spinsA[1] + 1, spinsA[2])
+            r = list(map(float, degrees))
+            for i in range(0, len(r)):
+                r[i] = r[i] * math.pi / 180
+                print(r[i])
+            for i in range(0, len(grids[0][0])) :
+                theta.append(grids[self.anglesDropDown.currentIndex()][self.frequencyDropDown.currentIndex()][i])
+            
+        else:
+            degrees = np.arange(spinsE[0], spinsE[1] + 1, spinsE[2])
+            r = list(map(float, degrees))
+            for i in range(0, len(r)):
+                r[i] = r[i] * math.pi / 180
+                print(r[i])
+            for i in range(0, len(grids[0])) :
+                theta.append(grids[self.anglesDropDown.currentIndex()][i][self.frequencyDropDown.currentIndex()])
 
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
         ax.plot(r, theta)
