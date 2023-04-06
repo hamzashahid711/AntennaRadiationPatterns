@@ -264,7 +264,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         # initilize
 
-        SCPI_server_IP = '169.254.70.21'
+        SCPI_server_IP = '169.254.233.169'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
@@ -584,7 +584,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
         ax.plot(r, theta)
-        ax.set_rmax(.003)
+        # ax.set_rmax(.003)
         # ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
         ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
         ax.grid(True)
