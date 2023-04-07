@@ -5,7 +5,7 @@
 import numpy as np
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QMessageBox, QFileDialog
+from PyQt6.QtWidgets import QMessageBox, QFileDialog, QInputDialog
 from matplotlib import pyplot as plt
 import random
 import os
@@ -24,7 +24,7 @@ spinsE = []
 grids = []
 elevationArray = []
 horizontalArray = []
-
+minimum = 0
 
 class Ui_AntennaRadiationPatternAnalyzer(object):
 
@@ -563,58 +563,66 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                 wholeLine = line.strip()
                 tracePoints = ''.join(x for x in wholeLine if x.isdigit())
         return tracePoints
-
+    def setMinimum(self):
+        global minimum
+        min, ok = QInputDialog.getInt(self.mapFrequency, "integer input dualog", "enter a minimum")
+        if ok:
+            minimum = min
+            return ok
     def plot(self):
-        theta = []
-        if (self.verticleAngles.isChecked() == True):
-            degrees = np.arange(spinsA[0], spinsA[1] + 1, spinsA[2])
-            r = list(map(float, degrees))
-            for i in range(0, len(r)):
-                r[i] = r[i] * math.pi / 180
-                print(r[i])
-            for i in range(0, len(grids[0][0])):
-                theta.append(grids[self.frequencyDropDown.currentIndex()][self.anglesDropDown.currentIndex()][i])
-                # theta.append(grids[self.anglesDropDown.currentIndex()][self.frequencyDropDown.currentIndex()][i])
+        global minimum
+        if(self.setMinimum()):
+            print(minimum)
+            theta = []
+            if (self.verticleAngles.isChecked() == True):
+                degrees = np.arange(spinsA[0], spinsA[1] + 1, spinsA[2])
+                r = list(map(float, degrees))
+                for i in range(0, len(r)):
+                    r[i] = r[i] * math.pi / 180
+                for i in range(0, len(grids[0][0])):
+                    theta.append(grids[self.frequencyDropDown.currentIndex()][self.anglesDropDown.currentIndex()][i])
+                    # theta.append(grids[self.anglesDropDown.currentIndex()][self.frequencyDropDown.currentIndex()][i])
 
-        else:
-            degrees = np.arange(spinsE[0], spinsE[1] + 1, spinsE[2])
-            r = list(map(float, degrees))
-            for i in range(0, len(r)):
-                r[i] = r[i] * math.pi / 180
-                print(r[i])
-            for i in range(0, len(grids[0])):
-                theta.append(grids[self.frequencyDropDown.currentIndex()][i][self.anglesDropDown.currentIndex()])
-                # theta.append(grids[self.anglesDropDown.currentIndex()][i][self.frequencyDropDown.currentIndex()])
+            else:
+                degrees = np.arange(spinsE[0], spinsE[1] + 1, spinsE[2])
+                r = list(map(float, degrees))
+                for i in range(0, len(r)):
+                    r[i] = r[i] * math.pi / 180
+                for i in range(0, len(grids[0])):
+                    theta.append(grids[self.frequencyDropDown.currentIndex()][i][self.anglesDropDown.currentIndex()])
+                    # theta.append(grids[self.anglesDropDown.currentIndex()][i][self.frequencyDropDown.currentIndex()])
 
-        fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-        ax.plot(r, theta)
+            fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+            ax.plot(r, theta)
         # ax.set_rmax(.003)
         # ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
-        ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
-        ax.grid(True)
+            ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
+            ax.grid(True)
 
-        ax.set_title("A line plot on a polar axis", va='bottom')
+            ax.set_title("A line plot on a polar axis", va='bottom')
 
-        with NamedTemporaryFile("r+b", delete=True) as plot:
-            fig1 = plt.gcf()
-            plt.show()
-            plt.draw()
+            with NamedTemporaryFile("r+b", delete=True) as plot:
+                fig1 = plt.gcf()
+                plt.show()
+                plt.draw()
             # delete is by default True
             # the if you don't set it, it will delete the file
             # after leaving the with block
-            fig1.savefig(plot)
+                fig1.savefig(plot)
             # seeking back to position 0
             # allowed by r+
-            plot.seek(0)
+                plot.seek(0)
             # show the image from temporary file with PILLOW
-            qpix = QPixmap(plot.name)
-            self.imagePlot.setPixmap(qpix)
+                qpix = QPixmap(plot.name)
+                self.imagePlot.setPixmap(qpix)
             # Image is shown (window opens)
             # but then directly the block is left and the NamedTemporaryFile is deleted
-        if os.path.exists(plot.name):
-            print("still exists.")
+            if os.path.exists(plot.name):
+                print("still exists.")
+            else:
+                print(plot.name + "was deleted.")
         else:
-            print(plot.name + "was deleted.")
+            return
 
     def disableManual(self, radioButton1, radioButton2, startSpin1, stopSpin1, startSpin2, stopSpin2, stepSize1,
                       stepSize2, homedevice1, startSpin3, stopSpin3, startSpin4, stopSpin4, stepSize3, stepSize4,
