@@ -6,7 +6,8 @@ import numpy as np
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QMessageBox, QFileDialog, QInputDialog
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as pp
+
 import random
 import os
 import re
@@ -24,7 +25,9 @@ spinsE = []
 grids = []
 elevationArray = []
 horizontalArray = []
+frequencyValues_list = []
 minimum = 0
+
 
 class Ui_AntennaRadiationPatternAnalyzer(object):
 
@@ -206,6 +209,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         # initial state
         self.mapFrequency.setEnabled(False)
+        self.exportData.setEnabled(False)
         self.frequenciesDropDown(self.frequencyDropDown, [])
         self.verticleAngles.setChecked(True)
         self.script_Runner.setChecked(True)
@@ -248,6 +252,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                                        self.homeDevice1, self.run_script))
 
         self.uploadData.clicked.connect(self.uploadFiles)
+        self.exportData.clicked.connect(self.exportFiles)
         self.scriptStartSpinBox1.valueChanged.connect(lambda: self.getSpinValue(self.scriptStartSpinBox1, 1))
         self.scriptStopSpinBox1.valueChanged.connect(lambda: self.getSpinValue(self.scriptStopSpinBox1, 2))
         self.scriptStepSize1.valueChanged.connect(lambda: self.getSpinValue(self.scriptStepSize1, 3))
@@ -260,10 +265,11 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         QtCore.QMetaObject.connectSlotsByName(AntennaRadiationPatternAnalyzer)
 
     def sweep(self):
+        global frequencyValues_list
 
         # initilize
 
-        SCPI_server_IP = '169.254.114.219'
+        SCPI_server_IP = '169.254.15.149'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
@@ -285,6 +291,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.frequenciesDropDown(self.frequencyDropDown, frequencyValues)
         if (len(frequencyValues) > 0):
             self.mapFrequency.setEnabled(True)
+            self.exportData.setEnabled(True)
 
         finish = visaSession.query(
             '*OPC?')  # this command waits for all pending operations to finish and afterwards returns an 1
@@ -563,15 +570,17 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                 wholeLine = line.strip()
                 tracePoints = ''.join(x for x in wholeLine if x.isdigit())
         return tracePoints
+
     def setMinimum(self):
         global minimum
         min, ok = QInputDialog.getInt(self.mapFrequency, "integer input dualog", "enter a minimum")
         if ok:
             minimum = min
             return ok
+
     def plot(self):
         global minimum
-        if(self.setMinimum()):
+        if (self.setMinimum()):
             print(minimum)
             theta = []
             if (self.verticleAngles.isChecked() == True):
@@ -592,27 +601,46 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                     theta.append(grids[self.frequencyDropDown.currentIndex()][i][self.anglesDropDown.currentIndex()])
                     # theta.append(grids[self.anglesDropDown.currentIndex()][i][self.frequencyDropDown.currentIndex()])
 
-            fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-            ax.plot(r, theta)
-        # ax.set_rmax(.003)
-        # ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
-            ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
+            ax = pp.subplot(111, polar=True)
+            max = np.max(theta)
+            for i in range(0, len(theta)):
+                theta[i] = 20 * np.log10(theta[i] / max)
+
+            average = float(sum(theta) / len(theta))
+            min = average * 2
+            ax.set_ylim(min, 0)
+            tick = []
+            for i in range(0, 5):
+                tick.append(0 + min * (float(i) / 4.0))
+
+            ax.set_yticks(tick)
+
+            # ax.plot(r, theta)
+            # ax.set_rmax(.003)
+            # ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
+            # ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
             ax.grid(True)
 
             ax.set_title("A line plot on a polar axis", va='bottom')
 
+            ax.set_theta_zero_location('N')
+            ax.set_theta_direction('clockwise')
+            pp.plot(r, theta)
+            ax.set_xticks(np.array([-90, -45, 0, 45, 90]) / 180 * math.pi)
+            ax.set_thetalim(-1 / 2 * np.pi, 1 / 2 * np.pi)
+
             with NamedTemporaryFile("r+b", delete=True) as plot:
-                fig1 = plt.gcf()
-                plt.show()
-                plt.draw()
-            # delete is by default True
-            # the if you don't set it, it will delete the file
-            # after leaving the with block
+                fig1 = pp.gcf()
+                pp.show()
+                pp.draw()
+                # delete is by default True
+                # the if you don't set it, it will delete the file
+                # after leaving the with block
                 fig1.savefig(plot)
-            # seeking back to position 0
-            # allowed by r+
+                # seeking back to position 0
+                # allowed by r+
                 plot.seek(0)
-            # show the image from temporary file with PILLOW
+                # show the image from temporary file with PILLOW
                 qpix = QPixmap(plot.name)
                 self.imagePlot.setPixmap(qpix)
             # Image is shown (window opens)
@@ -692,13 +720,47 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
                 self.mapFrequency.setEnabled(False)
 
     def uploadFiles(self):
-        fileName = QFileDialog.getOpenFileName(None, 'Open File', "", "Image Files (*.png)")
-        print(fileName)
+        global spinsA
+        global spinsE
+        global grids
+        global frequencyValues_list
+        fileName = QFileDialog.getOpenFileName(None, 'Open File', "", "python npz files (*.npz)")
+        print("here", fileName[0])
         if (fileName[0] != '' and fileName[1] != ''):
             print("uploaded success")
             self.successPopup(fileName[0])
+            self.mapFrequency.setEnabled(True)
+            with np.load(fileName[0]) as data:
+                frequencyValues_list = data['frequencyValues_list']
+                grids = data['grids']
+                spinsA = data['spinsA']
+                spinsE = data['spinsE']
+            if self.checkArray(spinsE):
+                for i in range((spinsE[0]), (spinsE[1]) + 1, spinsE[2]):
+                    elevationArray.append(i)
+            else:
+                elevationArray.append(0)
+            if self.checkArray(spinsA):
+                for i in range((spinsA[0]), (spinsA[1]) + 1, spinsA[2]):
+                    horizontalArray.append(i)
+            else:
+                horizontalArray.append(0)
+
+            self.frequenciesDropDown(self.frequencyDropDown, frequencyValues_list)
+
+            self.toggleAngleDrop(self.verticleAngles, self.horizontalAngles)
+
+
         else:
             print("failed to upload file try again")
+
+    def exportFiles(self):
+        fileName, ok = QInputDialog.getText(self.mapFrequency, "file name", "enter a fileName")
+        if ok:
+            print(fileName)
+            np.savez((fileName + '.npz'), frequencyValues_list=frequencyValues_list, grids=grids, spinsA=spinsA,
+                     spinsE=spinsE)
+            return ok
 
     def successPopup(self, path):
         msg = QMessageBox()
