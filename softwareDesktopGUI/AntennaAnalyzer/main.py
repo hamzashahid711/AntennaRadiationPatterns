@@ -269,7 +269,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         # initilize
 
-        SCPI_server_IP = '169.254.15.149'
+        SCPI_server_IP = '169.254.233.182'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
@@ -580,7 +580,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
     def plot(self):
         global minimum
-        if (self.setMinimum()):
+        if (True):
             print(minimum)
             theta = []
             if (self.verticleAngles.isChecked() == True):
@@ -604,10 +604,13 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             ax = pp.subplot(111, polar=True)
             max = np.max(theta)
             for i in range(0, len(theta)):
-                theta[i] = 20 * np.log10(theta[i] / max)
+                theta[i] = 20 * np.log10(theta[i] / (max))
 
             average = float(sum(theta) / len(theta))
             min = average * 2
+            minimum, ok = QInputDialog.getInt(self.mapFrequency, "Enter a minimum", "Set a minimum value, default is recommended value", min)
+            if ok:
+                min = minimum
             ax.set_ylim(min, 0)
             tick = []
             for i in range(0, 5):
@@ -621,7 +624,14 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             # ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
             ax.grid(True)
 
-            ax.set_title("A line plot on a polar axis", va='bottom')
+            title = ""
+            if(self.verticleAngles.isChecked() == True):
+                title = "Frequency: " + self.frequencyDropDown.currentText() + "Hz | Verticle Angle: " + self.anglesDropDown.currentText() + chr(176)
+                ax.set_xlabel('Horizonatal Angles')
+            else:
+                title = "Frequency: " + self.frequencyDropDown.currentText() + "Hz | Horizontal Angle: " + self.anglesDropDown.currentText() + chr(176)
+                ax.set_xlabel('Verticle Angles')
+            ax.set_title(title, va='bottom')
 
             ax.set_theta_zero_location('N')
             ax.set_theta_direction('clockwise')
