@@ -16,9 +16,16 @@ import locale
 import time
 from PIL import Image
 import math
+import serial
 from tempfile import NamedTemporaryFile
 
 # global values
+ser = serial.Serial('COM5', 115200, timeout=1)
+max_accel_x = 150
+max_accel_y = 150
+ser.write(f"M201 X{max_accel_x} Y{max_accel_y}\n".encode())
+time.sleep(1)  # wait for the command to be processed
+
 spinArray = []
 spinsA = []
 spinsE = []
@@ -208,6 +215,12 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         self.manualStepSize.setObjectName("manualStepSize")
 
         # initial state
+        self.scriptStartSpinBox1.setValue(90)
+        self.scriptStopSpinBox1.setValue(90)
+        self.scriptStepSize1.setValue(60)
+        self.scriptStartSpinBox2.setValue(60)
+        self.scriptStopSpinBox2.setValue(60)
+        self.scriptStepSize2.setValue(15)
         self.mapFrequency.setEnabled(False)
         self.exportData.setEnabled(False)
         self.frequenciesDropDown(self.frequencyDropDown, [])
@@ -269,7 +282,7 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
         # initilize
 
-        SCPI_server_IP = '169.254.233.182'
+        SCPI_server_IP = '169.254.169.107'
         SCPI_Port = '5025'
         SCPI_timeout = 20000  # milliseconds
         VISA_resource_name = 'TCPIP::' + SCPI_server_IP + '::' + SCPI_Port + '::SOCKET'
@@ -300,35 +313,83 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
         numcols = len(grids[0][0])
         Matrix = [[0 for x in range(numcols)] for y in range(numrows)]
         counter = 0
+        startAngle = spinsA[0]
+        startAngle = startAngle * (.2 / 3)
+        stopAngle = spinsA[1]
+        stopAngle = stopAngle * (.2 / 3)
+        homeXPosition = 0
+        leftXPosition = homeXPosition + startAngle
+        rightXPosition = homeXPosition + stopAngle
+
+        xPositionStep = spinsA[2]
+        xPositionStep = xPositionStep * (.2 / 3)
+
+        yPos = 55
+        currentxPos = leftXPosition
+        startYAngle = spinsE[0] * (.2 / 3)
+        stopYAngle = spinsE[1] * (.2 / 3)
+        yPositionStep = spinsE[2] * (.2 / 3)
+        homeYPosition = 0
+        upYPos = homeYPosition + startYAngle
+        downYPos = homeYPosition + stopAngle
+        currentYPos = upYPos
+        ser.write(f"G0 X{homeXPosition} Y{homeYPosition}\n".encode())
+        time.sleep(1)
         for i in range(0, numrows):
             if (counter == 0):
+                ser.write(f"G0 X{leftXPosition} Y{currentYPos}\n".encode())
+                time.sleep(1)  # wait for the motor to move
                 for j in range(0, numcols):
                     magnitudes = self.magnitudes(visaSession)
                     for k in range(0, len(magnitudes)):
                         grids[k][i][j] = magnitudes[k]
+                    if j != numcols - 1:
+                        currentxPos = currentxPos + xPositionStep
+                        print("moving x position")
+                        print(currentxPos)
+                        ser.write(f"G0 X{currentxPos} Y{currentYPos}\n".encode())
+                        time.sleep(1)
 
             if (counter == 1):
+                ser.write(f"G0 X{rightXPosition} Y{currentYPos}\n".encode())
+                time.sleep(1)
                 for j in range(numcols - 1, -1, -1):
                     magnitudes = self.magnitudes(visaSession)
                     for k in range(0, len(magnitudes)):
                         grids[k][i][j] = magnitudes[k]
+                    if j != numcols - 1:
+                        currentxPos = currentxPos - xPositionStep
+                        print("moving x position")
+                        print(currentxPos)
+                        ser.write(f"G0 X{currentxPos} Y{currentYPos}\n".encode())
+                        time.sleep(1)
+
             counter = (counter + 1) % 2
+            currentYPos = currentYPos + yPositionStep
+            print("moving y")
+        ser.write(f"G0 X{homeXPosition} Y{homeYPosition}\n".encode())
+        time.sleep(1)
+
         for i in range(0, len(frequencyValues_list)):
             place = i + 1
-            print("Frequency " + str(place) + ": " + str(frequencyValues_list[i]))
+            # print("Frequency " + str(place) + ": " + str(frequencyValues_list[i]))
             grid = grids[i]
-            print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in grid]))
+            # print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in grid]))
 
         visaSession.close()
 
     def magnitudes(self, visaSession):
+        visaSession.query("INIT:IMMediate;*OPC?")
         allResults = visaSession.query(":CALC:DATA:SDAT?")
+        visaSession.query("INIT:CONT 0;*OPC?")
+
         allResults_list = list(map(float, allResults.split(",")))
         magnitudesList = []
         for i in range(0, len(allResults_list), 2):
             magnitude = allResults_list[i] ** 2 + allResults_list[i + 1] ** 2
             magnitude = magnitude ** .5
             magnitudesList.append(magnitude)
+
         return magnitudesList
 
     def frequenciesDropDown(self, frequencydrop, frequencyarray):
@@ -608,7 +669,8 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
 
             average = float(sum(theta) / len(theta))
             min = average * 2
-            minimum, ok = QInputDialog.getInt(self.mapFrequency, "Enter a minimum", "Set a minimum value, default is recommended value", min)
+            minimum, ok = QInputDialog.getInt(self.mapFrequency, "Enter a minimum",
+                                              "Set a minimum value, default is recommended value", min)
             if ok:
                 min = minimum
             ax.set_ylim(min, 0)
@@ -625,16 +687,20 @@ class Ui_AntennaRadiationPatternAnalyzer(object):
             ax.grid(True)
 
             title = ""
-            if(self.verticleAngles.isChecked() == True):
-                title = "Frequency: " + self.frequencyDropDown.currentText() + "Hz | Verticle Angle: " + self.anglesDropDown.currentText() + chr(176)
+            if (self.verticleAngles.isChecked() == True):
+                title = "Frequency: " + self.frequencyDropDown.currentText() + "Hz | Verticle Angle: " + self.anglesDropDown.currentText() + chr(
+                    176)
                 ax.set_xlabel('Horizonatal Angles')
             else:
-                title = "Frequency: " + self.frequencyDropDown.currentText() + "Hz | Horizontal Angle: " + self.anglesDropDown.currentText() + chr(176)
+                title = "Frequency: " + self.frequencyDropDown.currentText() + "Hz | Horizontal Angle: " + self.anglesDropDown.currentText() + chr(
+                    176)
                 ax.set_xlabel('Verticle Angles')
             ax.set_title(title, va='bottom')
 
             ax.set_theta_zero_location('N')
             ax.set_theta_direction('clockwise')
+            print(r)
+            print(theta)
             pp.plot(r, theta)
             ax.set_xticks(np.array([-90, -45, 0, 45, 90]) / 180 * math.pi)
             ax.set_thetalim(-1 / 2 * np.pi, 1 / 2 * np.pi)
